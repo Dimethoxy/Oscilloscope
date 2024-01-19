@@ -51,11 +51,11 @@ CPMAddPackage(
 #==============================================================================
 
 # Add the subdirectories
-#add_subdirectory(Fonts)
 add_subdirectory(src)
-#add_subdirectory(Tests)
+add_subdirectory(Tests)
 
 #==============================================================================
+
 # Setup compiler settings
 if(MSVC)
     # Set the warning level to 4 and treat warnings as errors
@@ -65,5 +65,7 @@ else()
     add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
+#==============================================================================
+
 # Enable testing
-#enable_testing()
+enable_testing()
