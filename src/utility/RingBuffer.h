@@ -12,11 +12,10 @@ public:
   {
   }
 
-  const AudioBuffer<T> read(AudioBuffer<T>& targetBuffer) const noexcept
+  void read(AudioBuffer<T>& targetBuffer) const noexcept
   {
     while (!accessMutex.tryEnter())
       std::this_thread::yield();
-    int i = 5;
     const int startingPosition = position.get();
     for (int sample = 0; sample < bufferSize; ++sample) {
 
@@ -27,9 +26,10 @@ public:
           channel, sample, *buffer, channel, ringPosition, 1);
       }
     }
+    accessMutex.exit();
   }
 
-  void write(const AudioBuffer<T> bufferToWrite)
+  void write(const AudioBuffer<T> bufferToWrite) noexcept
   {
     // juce::CriticalSection::ScopedLockType lock(accessMutex);
     //  copy data from bufferToWrite to buffer

@@ -15,6 +15,7 @@ target_include_directories(${PROJECT_NAME}
         ${CMAKE_CURRENT_SOURCE_DIR}/../src
         ${EXT_DIR}/juce/modules
         ${EXT_DIR}/googletest/include
+        ${EXT_DIR}/googlebenchmark/include
         ${CMAKE_CURRENT_SOURCE_DIR}/../build/src/OscilloscopePlugin_artefacts/JuceLibraryCode/
 )
 
@@ -22,6 +23,7 @@ target_link_libraries(${PROJECT_NAME}
     PRIVATE
         OscilloscopePlugin
         GTest::gtest_main
+        benchmark::benchmark 
 )
 
 if(MSVC)
