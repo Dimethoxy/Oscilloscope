@@ -2,18 +2,9 @@
 # Oscilloscope Source Folder CMakeLists.txt file
 #==============================================================================
 
-# Set the minimum version of CMake required to build the project
 cmake_minimum_required(VERSION 3.22)
+project(AudioPlugin VERSION 0.1.0)
 
-# Set the project name and version
-project(Oscilloscope VERSION ${PROJECT_VERSION})
-
-# Print a message to indicate that the source folder has been loaded
-message("Source Folder loaded!")
-
-#==============================================================================
-
-# Create a JUCE project
 juce_add_plugin(${PROJECT_NAME}
     COMPANY_NAME Dimethoxy                     
     IS_SYNTH TRUE
@@ -27,14 +18,11 @@ juce_add_plugin(${PROJECT_NAME}
     FORMATS VST3 Standalone                       
     PRODUCT_NAME "Oscilloscope")                    
 
-
-# Add the source files to the project
 target_sources(${PROJECT_NAME}
     PRIVATE
         app/PluginEditor.cpp
         app/PluginProcessor.cpp)
 
-# Add the Poppins font using juce_add_binary_data
 juce_add_binary_data(FontBinaryData
     SOURCES
     ${CMAKE_SOURCE_DIR}/fonts/poppins/Poppins-Thin.ttf
@@ -50,7 +38,6 @@ juce_add_binary_data(FontBinaryData
         
 )
 
-# Add the JUCE modules to the project
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
         juce::juce_audio_basics
@@ -75,7 +62,6 @@ target_link_libraries(${PROJECT_NAME}
         juce::juce_recommended_lto_flags
         juce::juce_recommended_warning_flags)
 
-# Set the JUCE compiler flags for the project
 target_compile_definitions(${PROJECT_NAME}
     PRIVATE
         JUCE_WEB_BROWSER=0
@@ -84,14 +70,9 @@ target_compile_definitions(${PROJECT_NAME}
         JUCE_DISPLAY_SPLASH_SCREEN=0
         REPORT_JUCE_APP_USAGE=0)
 
-        
-#==============================================================================
-# Generate JUCE header file
 juce_generate_juce_header(${PROJECT_NAME})
 message("JUCE header file generated!")
 
-#==============================================================================
-# Supress JUCE warnings for MSVC
 if(MSVC)
     target_compile_definitions(${PROJECT_NAME}
         PRIVATE
@@ -99,11 +80,11 @@ if(MSVC)
     )
 endif()
 
-
-
 target_compile_definitions(${PROJECT_NAME}
     PRIVATE
         OS_IS_WINDOWS=$<BOOL:${WIN32}>
         OS_IS_DARWIN=$<BOOL:${APPLE}>
         OS_IS_LINUX=$<BOOL:${UNIX} AND NOT APPLE>
 )
+
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/..)

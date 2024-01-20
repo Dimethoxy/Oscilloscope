@@ -2,28 +2,34 @@
 # Oscilloscope Test Folder CMakeLists.txt file
 #==============================================================================
 
-# Set the minimum version of CMake required to build the project
 cmake_minimum_required(VERSION 3.22)
+project(AudioPluginTest)
+enable_testing()
 
-# Set the project name and version
-project(Oscilloscope VERSION ${PROJECT_VERSION})
-
-add_executable(${PROJECT_NAME}_test
+add_executable(${PROJECT_NAME}
     RingBufferTest.cpp
 )
 
-target_include_directories(${PROJECT_NAME}_test
+target_include_directories(${PROJECT_NAME}
     PRIVATE
-        ${GOOGLETEST_SOURCE_DIR}/googletest/include
         ${CMAKE_CURRENT_SOURCE_DIR}/../src
-        ${JUCE_SOURCE_DIR}/modules
+        ${EXT_DIR}/juce/modules
+        ${EXT_DIR}/googletest/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/../build/src/AudioPlugin_artefacts/JuceLibraryCode/
 )
 
-target_link_libraries(${PROJECT_NAME}_test
+target_link_libraries(${PROJECT_NAME}
     PRIVATE
-        ${PROJECT_NAME}
+        AudioPlugin
         GTest::gtest_main
 )
 
+if(MSVC)
+    target_compile_definitions(${PROJECT_NAME}
+        PRIVATE
+            _SILENCE_CXX23_ALIGEND_STORAGE_DEPRECATION_WARNING
+    )
+endif()
+
 include(GoogleTest)
-gtest_discover_tests(${PROJECT_NAME}_test)
+gtest_discover_tests(${PROJECT_NAME})
