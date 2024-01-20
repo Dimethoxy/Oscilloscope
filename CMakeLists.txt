@@ -32,7 +32,9 @@ if(MSVC)
     add_compile_options(/Qspectre )#/Wall /WX)
 else()
     add_compile_options(-Wall -Wextra -Wpedantic)
-endif()
+endif() 
+
+add_definitions(-D_SILENCE_CXX23_ALIGNED_STORAGE_DEPRECATION_WARNING)
 
 add_subdirectory(src)
 add_subdirectory(tests)

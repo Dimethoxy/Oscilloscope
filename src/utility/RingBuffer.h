@@ -16,7 +16,7 @@ public:
   {
     while (!accessMutex.tryEnter())
       std::this_thread::yield();
-
+    int i = 5;
     const int startingPosition = position.get();
     for (int sample = 0; sample < bufferSize; ++sample) {
 
@@ -38,7 +38,7 @@ public:
 private:
   const int bufferSize;
   const int numChannels;
-  juce::Atomic<AtomicHelpers::DiffTypeHelper<int>::Type> position;
+  juce::Atomic<int> position;
   std::unique_ptr<AudioBuffer<T>> buffer;
   mutable juce::CriticalSection accessMutex;
 };
