@@ -3,7 +3,7 @@
 #==============================================================================
 
 cmake_minimum_required(VERSION 3.22)
-project(AudioPluginTest)
+project(Oscilloscope)
 enable_testing()
 
 add_executable(${PROJECT_NAME}
@@ -15,12 +15,12 @@ target_include_directories(${PROJECT_NAME}
         ${CMAKE_CURRENT_SOURCE_DIR}/../src
         ${EXT_DIR}/juce/modules
         ${EXT_DIR}/googletest/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/../build/src/AudioPlugin_artefacts/JuceLibraryCode/
+        ${CMAKE_CURRENT_SOURCE_DIR}/../build/src/OscilloscopePlugin_artefacts/JuceLibraryCode/
 )
 
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
-        AudioPlugin
+        OscilloscopePlugin
         GTest::gtest_main
 )
 
