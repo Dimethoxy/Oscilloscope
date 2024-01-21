@@ -1,10 +1,7 @@
 //==============================================================================
 #include "../src/utility/RingBuffer.h"
 #include <JuceHeader.h>
-#include <gtest/gtest-printers.h>
 #include <gtest/gtest.h>
-#include <iostream>
-#include <sstream> // Add this header
 //==============================================================================
 namespace RingBufferTest {
 //==============================================================================
