@@ -1,14 +1,14 @@
+//==============================================================================
 #include "../src/utility/RingBuffer.h"
 #include <JuceHeader.h>
 #include <gtest/gtest-printers.h>
 #include <gtest/gtest.h>
 #include <iostream>
 #include <sstream> // Add this header
-
 //==============================================================================
 namespace RingBufferTest {
 //==============================================================================
-
+// Helper Functions
 const juce::AudioBuffer<float>
 generateTestBuffer(int numChannels, int numSamples)
 {
@@ -22,7 +22,7 @@ generateTestBuffer(int numChannels, int numSamples)
   }
   return buffer;
 }
-
+//==============================================================================
 // Unit Tests
 TEST(RingBuffer, read_write_correctness)
 {
