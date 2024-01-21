@@ -1,62 +1,44 @@
-#pragma once
-//==============================================================================
 #include "../src/utility/RingBuffer.h"
 #include <JuceHeader.h>
-#include <benchmark/benchmark.h>
-#include <format>
+#include <gtest/gtest-printers.h>
 #include <gtest/gtest.h>
+#include <iostream>
+#include <sstream> // Add this header
+
 //==============================================================================
 namespace RingBufferTest {
 //==============================================================================
+
+const juce::AudioBuffer<float>
+generateTestBuffer(int numChannels, int numSamples)
+{
+  juce::AudioBuffer<float> buffer(numChannels, numSamples);
+  for (int channel = 0; channel < numChannels; ++channel) {
+    for (int sample = 0; sample < numSamples; ++sample) {
+      juce::Random random;
+      const auto randomSample = random.nextFloat();
+      buffer.setSample(channel, sample, randomSample);
+    }
+  }
+  return buffer;
+}
+
 // Unit Tests
 TEST(RingBuffer, read_write_correctness)
 {
-  float values[2][5]{ { 1.0f, 2.0f, 3.0f, 4.0f, 5.0f },
-                      { 6.0f, 7.0f, 8.0f, 9.0f, 10.0f } };
+  const auto testBuffer = generateTestBuffer(7, 2048);
 
-  juce::AudioBuffer<float> buffer(2, 5);
+  RingBuffer<float> ringBuffer(7, 2048);
+  ringBuffer.write(testBuffer);
 
-  for (int channel = 0; channel < 2; ++channel) {
-    for (int sample = 0; sample < 5; ++sample) {
-      buffer.setSample(channel, sample, values[channel][sample]);
-    }
-  }
+  juce::AudioBuffer<float> readBuffer(7, 2048);
+  ringBuffer.read(readBuffer);
 
-  RingBuffer<float> ringBuffer(2, 5);
-  ringBuffer.write(buffer);
-
-  juce::AudioBuffer<float> targetBuffer(2, 5);
-  ringBuffer.read(targetBuffer);
-
-  for (int channel = 0; channel < 2; ++channel) {
-    for (int sample = 0; sample < 5; ++sample) {
-      ASSERT_EQ(buffer.getSample(channel, sample),
-                targetBuffer.getSample(channel, sample));
+  for (int channel = 0; channel < 7; ++channel) {
+    for (int sample = 0; sample < 2048; ++sample) {
+      EXPECT_EQ(testBuffer.getSample(channel, sample),
+                readBuffer.getSample(channel, sample));
     }
   }
 }
-//==============================================================================
-static void
-BM_WriteOperation(benchmark::State& state)
-{
-  RingBuffer<float> ringBuffer(2, 5);
-  juce::AudioBuffer<float> buffer(2, 5);
-
-  while (state.KeepRunning()) {
-    ringBuffer.write(buffer);
-  }
-}
-BENCHMARK(BM_WriteOperation);
-
-static void
-BM_ReadOperation(benchmark::State& state)
-{
-  RingBuffer<float> ringBuffer(2, 5);
-  juce::AudioBuffer<float> buffer(2, 5);
-
-  while (state.KeepRunning()) {
-    ringBuffer.read(buffer);
-  }
-}
-BENCHMARK(BM_ReadOperation);
-}
+} // namespace RingBufferTest

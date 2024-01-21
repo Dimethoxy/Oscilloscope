@@ -25,13 +25,6 @@ CPMAddPackage(
         "INSTALL_GTEST OFF"
         "gtest_force_shared_crt ON"
 )
-CPMAddPackage(
-    NAME GOOGLEBENCHMARK
-    GITHUB_REPOSITORY google/benchmark
-    GIT_TAG v1.6.1
-    VERSION 1.6.1
-    SOURCE_DIR ${EXT_DIR}/googlebenchmark
-)
 
 enable_testing()
 

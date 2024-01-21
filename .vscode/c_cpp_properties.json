@@ -9,7 +9,9 @@
                 "${workspaceFolder}/build/src/Oscilloscope_artefacts/JuceLibraryCode",
                 "${workspaceFolder}/external/googletest/googletest/include",
                 "${workspaceFolder}/build/src/OscilloscopePlugin_artefacts/JuceLibraryCode",
-                "${workspaceFolder}/src"
+                "${workspaceFolder}/src",
+                "${workspaceFolder}/external/googlebenchmark/include",
+                "${workspaceFolder}/build/src/OscilloscopePlugin_artefacts/JuceLibraryCode"
             ],
             "defines": [
                 "_DEBUG",
