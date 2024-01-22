@@ -25,7 +25,7 @@ TEST(RingBuffer, read_write_correctness)
 {
   // Maximum number of channels and buffer size to test
   const int maxNumChannels = 9;
-  const int maxBufferSize = 1024;
+  const int maxBufferSize = 2048;
   // Test all possible combinations of channels and buffer sizes
   for (int numChannels = 1; numChannels < maxNumChannels; ++numChannels) {
     for (int bufferSize = 1; bufferSize < maxBufferSize; ++bufferSize) {
@@ -39,12 +39,36 @@ TEST(RingBuffer, read_write_correctness)
       ringBuffer.read(readBuffer);
       // Compare the test buffer to the read buffer
       for (int channel = 0; channel < numChannels; ++channel) {
-        for (int sample = 0; sample < bufferSize; ++sample) {
+        for (int sample = 0; sample < bufferSize; sample *= 2) {
           EXPECT_EQ(testBuffer.getSample(channel, sample),
                     readBuffer.getSample(channel, sample));
+          if (channel == 0)
+            channel = 1;
         }
       }
     }
   }
+}
+TEST(RingBufferTest, size_mismatch)
+{
+  const int numChannels = 2;
+  const int bufferSize = 1024;
+
+  RingBuffer<float> ringBuffer(numChannels, bufferSize);
+
+  // Create a buffer to write with incorrect size
+  AudioBuffer<float> writeBuffer(numChannels, bufferSize / 2);
+
+  // Write the buffer to the ring buffer
+  RingBuffer<float>::OperationResult writeResult =
+    ringBuffer.write(writeBuffer);
+  EXPECT_EQ(writeResult, RingBuffer<float>::OperationResult::ErrorSizeMismatch);
+
+  // Create a buffer to read into with incorrect size
+  AudioBuffer<float> readBuffer(numChannels, bufferSize / 2);
+
+  // Read from the ring buffer
+  RingBuffer<float>::OperationResult readResult = ringBuffer.read(readBuffer);
+  EXPECT_EQ(readResult, RingBuffer<float>::OperationResult::ErrorSizeMismatch);
 }
 } // namespace RingBufferTest

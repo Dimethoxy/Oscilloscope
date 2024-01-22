@@ -5,18 +5,39 @@
 //==============================================================================
 /**
     @class RingBuffer
-    @brief A template class that represents a ring buffer for audio data.
+    @brief A template class that represents a thread-safe circular audio buffer.
 
     The RingBuffer class provides a circular buffer implementation for storing
     audio data. It supports reading and writing audio data to and from the
-    buffer.
+    buffer and employs a read-write lock to ensure thread safety.
 
     @tparam SampleType The type of audio data stored in the buffer.
+
+    @warning It is recommended to avoid calling the `write` method directly on
+    the audio thread, especially if there is a reader on a different thread.
+    Calling these methods on the audio thread may lead to blocking behavior.
+    Instead, consider spawning a new thread with a copy of the data to write,
+    ensuring that the audio thread remains responsive.
 */
 template<typename SampleType>
 class RingBuffer
 {
 public:
+  //============================================================================
+  /**
+      An enum class representing the result of an operation.
+
+      The OperationResult enum class represents the result of an operation.
+      It is used to indicate whether an operation was successful or not.
+
+      @see read
+      @see write
+  */
+  enum class OperationResult
+  {
+    Success,           /**< The operation was successful. */
+    ErrorSizeMismatch, /**< The operation failed due to a size mismatch. */
+  };
   //============================================================================
   /**
       Constructs a RingBuffer object with the specified number of channels an
@@ -35,21 +56,6 @@ public:
                                                        numSamplesToAllocate))
   {
   }
-  //============================================================================
-  /**
-      An enum class representing the result of an operation.
-
-      The OperationResult enum class represents the result of an operation.
-      It is used to indicate whether an operation was successful or not.
-
-      @see read
-      @see write
-  */
-  enum class OperationResult
-  {
-    Success,           /**< The operation was successful. */
-    ErrorSizeMismatch, /**< The operation failed due to a size mismatch. */
-  };
   //============================================================================
   /**
       Reads audio data from the buffer into the target buffer.
