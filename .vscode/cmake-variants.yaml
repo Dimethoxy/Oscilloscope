@@ -1,0 +1,17 @@
+# cmake-variants.yaml
+
+unit_testing:
+  default: unit_testing
+  choices:
+    debug:
+      short: Debug
+      long: Debug build with debug information
+      buildType: Debug
+    release:
+      short: Release
+      long: Release build with optimization
+      buildType: Release
+    unit_testing:
+      short: Unit Testing
+      long: Build for unit testing
+      buildType: Test

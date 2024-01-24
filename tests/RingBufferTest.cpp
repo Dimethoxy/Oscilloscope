@@ -39,11 +39,9 @@ TEST(RingBuffer, read_write_correctness)
       ringBuffer.read(readBuffer);
       // Compare the test buffer to the read buffer
       for (int channel = 0; channel < numChannels; ++channel) {
-        for (int sample = 0; sample < bufferSize; sample *= 2) {
+        for (int sample = 0; sample < bufferSize; ++sample) {
           EXPECT_EQ(testBuffer.getSample(channel, sample),
                     readBuffer.getSample(channel, sample));
-          if (channel == 0)
-            channel = 1;
         }
       }
     }
