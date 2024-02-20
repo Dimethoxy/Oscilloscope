@@ -17,13 +17,11 @@ juce_add_plugin(${PROJECT_NAME}
     PLUGIN_CODE NETR
     FORMATS VST3 Standalone                       
     PRODUCT_NAME "Oscilloscope")                    
-message("-- " ${PROJECT_NAME} " generated")
 
 target_sources(${PROJECT_NAME}
     PRIVATE
         app/PluginEditor.cpp
         app/PluginProcessor.cpp)
-message("-- Custom headers loaded")
 
 juce_add_binary_data(FontBinaryData
     SOURCES
@@ -36,9 +34,9 @@ juce_add_binary_data(FontBinaryData
     ${CMAKE_SOURCE_DIR}/fonts/poppins/Poppins-Bold.ttf
     ${CMAKE_SOURCE_DIR}/fonts/poppins/Poppins-ExtraBold.ttf
     ${CMAKE_SOURCE_DIR}/fonts/poppins/Poppins-Black.ttf
-    ${CMAKE_SOURCE_DIR}/fonts/sedgwick_ave_display/SedgwickAveDisplay-Regular.ttf 
+    ${CMAKE_SOURCE_DIR}/fonts/sedgwick_ave_display/SedgwickAveDisplay-Regular.ttf
+        
 )
-message("-- Fonts loaded")
 
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
@@ -63,7 +61,6 @@ target_link_libraries(${PROJECT_NAME}
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags
         juce::juce_recommended_warning_flags)
-message("-- JUCE modules loaded")
 
 target_compile_definitions(${PROJECT_NAME}
     PRIVATE
@@ -72,11 +69,9 @@ target_compile_definitions(${PROJECT_NAME}
         JUCE_VST3_CAN_REPLACE_VST2=0
         JUCE_DISPLAY_SPLASH_SCREEN=0
         REPORT_JUCE_APP_USAGE=0)
-message("-- JUCE settings set")
-
 
 juce_generate_juce_header(${PROJECT_NAME})
-message("-- JUCE header file generated")
+message("JUCE header file generated!")
 
 if(MSVC)
     target_compile_definitions(${PROJECT_NAME}
@@ -84,7 +79,6 @@ if(MSVC)
             _SILENCE_CXX23_ALIGEND_STORAGE_DEPRECATION_WARNING
     )
 endif()
-message("-- JUCE warnigs silenced")
 
 target_compile_definitions(${PROJECT_NAME}
     PRIVATE
@@ -92,6 +86,5 @@ target_compile_definitions(${PROJECT_NAME}
         OS_IS_DARWIN=$<BOOL:${APPLE}>
         OS_IS_LINUX=$<BOOL:${UNIX} AND NOT APPLE>
 )
-message("-- OS flag set")
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/..)

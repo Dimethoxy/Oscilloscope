@@ -2,8 +2,7 @@
 #include "../src/utility/RingBuffer.h"
 #include <JuceHeader.h>
 #include <gtest/gtest.h>
-//==============================================================================
-namespace RingBufferTest {
+
 //==============================================================================
 // Helper Functions
 const juce::AudioBuffer<float>
@@ -69,4 +68,3 @@ TEST(RingBufferTest, size_mismatch)
   RingBuffer<float>::OperationResult readResult = ringBuffer.read(readBuffer);
   EXPECT_EQ(readResult, RingBuffer<float>::OperationResult::ErrorSizeMismatch);
 }
-} // namespace RingBufferTest
