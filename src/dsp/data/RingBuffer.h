@@ -16,11 +16,11 @@ namespace data {
 
     @tparam SampleType The type of audio data stored in the buffer.
 
-    @warning It is recommended to avoid calling the `write` method directly on
-    the audio thread, especially if there is a reader on a different thread.
-    Calling these methods on the audio thread may lead to blocking behavior.
-    Instead, consider spawning a new thread with a copy of the data to write,
-    ensuring that the audio thread remains responsive.
+    @warning It is recommended to avoid calling the `write` and `read` method
+    directly on the audio thread, especially if there is a reader on a different
+    thread. Calling these methods on the audio thread may lead to blocking
+    behavior. Instead, consider spawning a new thread with a copy of the data to
+    write, ensuring that the audio thread remains responsive.
 */
 template<typename SampleType>
 class RingBuffer
@@ -71,7 +71,7 @@ public:
     // If targetBuffer is smaller than the RingBuffer we need to return early
     if (targetBuffer.getNumChannels() < numChannels ||
         targetBuffer.getNumSamples() < bufferSize) {
-      jassertfalse; // Juce does not support exceptions, so we assert instead
+      jassertfalse;
       return OperationResult::ErrorSizeMismatch;
     }
 
@@ -108,7 +108,7 @@ public:
     // If bufferToWrite is larger than the RingBuffer we need to return early
     if (bufferToWrite.getNumChannels() > numChannels ||
         bufferToWrite.getNumSamples() > bufferSize) {
-      jassertfalse; // Juce does not support exceptions, so we assert instead
+      jassertfalse;
       return OperationResult::ErrorSizeMismatch;
     }
 

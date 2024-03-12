@@ -1,11 +1,9 @@
 #pragma once
 
-#include "../dsp/data/RingBuffer.h"
 #include <JuceHeader.h>
 //==============================================================================
 class AudioPluginAudioProcessor final : public juce::AudioProcessor
 {
-  using RingBuffer = dmt::dsp::data::RingBuffer<float>;
 
 public:
   //==============================================================================
@@ -45,7 +43,6 @@ public:
   void setStateInformation(const void* data, int sizeInBytes) override;
 
   //==============================================================================
-  std::unique_ptr<RingBuffer> ringBuffer;
 
 private:
   //==============================================================================

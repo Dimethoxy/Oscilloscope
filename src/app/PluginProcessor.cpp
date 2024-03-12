@@ -99,7 +99,6 @@ void
 AudioPluginAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
   juce::ignoreUnused(sampleRate, samplesPerBlock);
-  ringBuffer = std::make_unique<RingBuffer>(2, sampleRate);
 }
 
 void
