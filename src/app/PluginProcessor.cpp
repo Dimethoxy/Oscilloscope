@@ -11,8 +11,7 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
 #endif
         .withOutput("Output", juce::AudioChannelSet::stereo(), true)
 #endif
-        )
-  , ringBuffer(48000, 2)
+    )
 {
 }
 
@@ -99,9 +98,8 @@ AudioPluginAudioProcessor::changeProgramName(int index,
 void
 AudioPluginAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
-  // Use this method as the place to do any pre-playback
-  // initialisation that you need..
   juce::ignoreUnused(sampleRate, samplesPerBlock);
+  ringBuffer = std::make_unique<RingBuffer>(2, sampleRate);
 }
 
 void

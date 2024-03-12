@@ -2,6 +2,9 @@
 #pragma once
 //==============================================================================
 #include <JuceHeader.h>
+namespace dmt {
+namespace dsp {
+namespace data {
 //==============================================================================
 /**
     @class RingBuffer
@@ -71,23 +74,25 @@ public:
       jassertfalse; // Juce does not support exceptions, so we assert instead
       return OperationResult::ErrorSizeMismatch;
     }
+
     // We need to lock the buffer for reading to ensure thread safety
     lock.enterRead();
+
     // Caching the atomic should be cheaper than calling get() every iteration
     const int startingPosition = position.get();
+
     // Iterate the samples first to improve thread safety
     for (int sample = 0; sample < bufferSize; ++sample) {
-      // We use modulo to wrap the index around the buffer
       const int ringPosition = (startingPosition + sample) % bufferSize;
-      // Iterate the channels second to improve thread safety
       for (int channel = 0; channel < numChannels; ++channel) {
-        // Copy the sample from the buffer to targetBuffer
         targetBuffer.copyFrom(
           channel, sample, *buffer, channel, ringPosition, 1);
       }
     }
+
     // We need to unlock the buffer after reading to ensure thread safety
     lock.exitRead();
+
     // We return the result of the operation
     return OperationResult::Success;
   }
@@ -106,25 +111,28 @@ public:
       jassertfalse; // Juce does not support exceptions, so we assert instead
       return OperationResult::ErrorSizeMismatch;
     }
+
     // We need to lock the buffer for writing to ensure thread safety
     lock.enterWrite();
+
     // Caching the atomic should be cheaper than calling get() every iteration
     const int startingPosition = position.get();
+
     // Iterate the samples first to improve thread safety
     for (int sample = 0; sample < bufferSize; ++sample) {
-      // We use modulo to wrap the index around the buffer
       const int ringPosition = (startingPosition + sample) % bufferSize;
-      // Iterate the channels second to improve thread safety
       for (int channel = 0; channel < numChannels; ++channel) {
-        // Copy the sample from bufferToWrite to the buffer
         buffer->copyFrom(
           channel, ringPosition, bufferToWrite, channel, sample, 1);
       }
     }
+
     // We update the position for the readers after we've written the buffer
     position.set((startingPosition + bufferSize) % bufferSize);
+
     // We need to unlock the buffer after writing to ensure thread safety
     lock.exitWrite();
+
     // We return the result of the operation
     return OperationResult::Success;
   }
@@ -136,3 +144,6 @@ private:
   std::unique_ptr<AudioBuffer<SampleType>> buffer; // Buffer to store audio data
   juce::ReadWriteLock lock;                        // Lock for thread safety
 };
+} // namespace data
+} // namespace dsp
+} // namespace dmt
