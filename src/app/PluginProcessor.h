@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../dsp/processor/OscilloscopeProcessor.h"
 #include <JuceHeader.h>
 //==============================================================================
 class AudioPluginAudioProcessor final : public juce::AudioProcessor
@@ -43,6 +44,7 @@ public:
   void setStateInformation(const void* data, int sizeInBytes) override;
 
   //==============================================================================
+  dmt::dsp::processor::OscilloscopeProcessor<float> oscilloscopeProcessor;
 
 private:
   //==============================================================================

@@ -7,6 +7,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(
   : AudioProcessorEditor(&p)
   , processorRef(p)
 {
+  setSize(400, 300);
 }
 
 AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor() {}

@@ -10,15 +10,27 @@ namespace dsp {
 namespace processor {
 //==============================================================================
 template<typename SampleType>
-class OscilloscopeProcessor : public juce::AudioProcessor
+class OscilloscopeProcessor
 {
   using RingBuffer = dmt::dsp::data::RingBuffer<SampleType>;
 
 public:
+  ~OscilloscopeProcessor()
+  {
+    kill = true;
+    std::unique_lock<std::mutex> lock(closeMutex);
+    killConditionVariable.wait(lock,
+                               [this] { return this->closed.get() == true; });
+    lock.unlock();
+  }
+
   //============================================================================
   void prepareToPlay(double sampleRate, int samplesPerBlock)
   {
     ringBuffer = std::make_unique<RingBuffer>(2, sampleRate);
+    transferThread =
+      std::thread(&OscilloscopeProcessor::transferThreadCallback, this);
+    transferThread.detach();
   }
   void processBlock(juce::AudioBuffer<SampleType>& buffer,
                     juce::MidiBuffer& midiMessages)
@@ -26,31 +38,36 @@ public:
     juce::AudioBuffer<SampleType> bufferCopy(buffer);
     bufferQueue.push(bufferCopy);
   }
-  void consumeQueue()
+  //============================================================================
+  void transferThreadCallback()
   {
-    while (true) {
-      std::unique_lock<std::mutex> lock(mtx);
+    while (kill == false) {
+      std::unique_lock<std::mutex> lock(queueMutex);
 
       // Wait until the queue is not empty
       queueConditionVariable.wait(lock, [] { return !bufferQueue.empty(); });
 
-      // Once notified, process the queue
       while (!bufferQueue.empty()) {
         auto buffer = bufferQueue.front();
         bufferQueue.pop();
         ringBuffer->write(buffer);
       }
 
-      // Release the lock
       lock.unlock();
     }
+    closed = true;
   }
   //============================================================================
 private:
   std::unique_ptr<RingBuffer> ringBuffer;
   std::queue<juce::AudioBuffer<SampleType>> bufferQueue;
   std::condition_variable queueConditionVariable;
+  std::condition_variable killConditionVariable;
   std::mutex queueMutex;
+  std::mutex closeMutex;
+  std::thread transferThread;
+  juce::Atomic<bool> kill{ false };
+  juce::Atomic<bool> closed{ true };
 };
 } // namespace processor
 } // namespace dsp
