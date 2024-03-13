@@ -2,20 +2,20 @@
 #include "PluginProcessor.h"
 
 //==============================================================================
-AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(
-  AudioPluginAudioProcessor& p)
+ProcessorEditor::ProcessorEditor(AudioPluginAudioProcessor& p)
   : AudioProcessorEditor(&p)
-  , processorRef(p)
+  , p(p)
 {
   setSize(400, 300);
 }
 
-AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor() {}
+ProcessorEditor::~ProcessorEditor() {}
 
 //==============================================================================
 void
 AudioPluginAudioProcessorEditor::paint(juce::Graphics& g)
 {
+  g.fillAll(juce::Colours::green);
 }
 
 void

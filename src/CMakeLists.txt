@@ -7,14 +7,14 @@ project(OscilloscopePlugin VERSION 0.1.0)
 
 juce_add_plugin(${PROJECT_NAME}
     COMPANY_NAME Dimethoxy                     
-    IS_SYNTH TRUE
-    NEEDS_MIDI_INPUT TRUE
+    IS_SYNTH FALSE
+    NEEDS_MIDI_INPUT FALSE
     NEEDS_MIDI_OUTPUT FALSE
     IS_MIDI_EFFECT FALSE
     EDITOR_WANTS_KEYBOARD_FOCUS FALSE
     #COPY_PLUGIN_AFTER_BUILD TRUE
     PLUGIN_MANUFACTURER_CODE DMTX
-    PLUGIN_CODE NETR
+    PLUGIN_CODE OSCP
     FORMATS VST3 Standalone                       
     PRODUCT_NAME "Oscilloscope")                    
 

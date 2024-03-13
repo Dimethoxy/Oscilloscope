@@ -25,15 +25,14 @@ public:
   }
 
   //============================================================================
-  void prepareToPlay(double sampleRate, int samplesPerBlock)
+  void prepareToPlay(double sampleRate, int /*samplesPerBlock*/)
   {
     ringBuffer = std::make_unique<RingBuffer>(2, sampleRate);
     transferThread =
       std::thread(&OscilloscopeProcessor::transferThreadCallback, this);
     transferThread.detach();
   }
-  void processBlock(juce::AudioBuffer<SampleType>& buffer,
-                    juce::MidiBuffer& midiMessages)
+  void processBlock(juce::AudioBuffer<SampleType>& buffer)
   {
     juce::AudioBuffer<SampleType> bufferCopy(buffer);
     bufferQueue.push(bufferCopy);
@@ -41,11 +40,12 @@ public:
   //============================================================================
   void transferThreadCallback()
   {
-    while (kill == false) {
+    while (kill.get() == false) {
       std::unique_lock<std::mutex> lock(queueMutex);
 
       // Wait until the queue is not empty
-      queueConditionVariable.wait(lock, [] { return !bufferQueue.empty(); });
+      queueConditionVariable.wait(
+        lock, [this] { return !this->bufferQueue.empty(); });
 
       while (!bufferQueue.empty()) {
         auto buffer = bufferQueue.front();
