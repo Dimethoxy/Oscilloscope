@@ -2,7 +2,7 @@
 #include "PluginEditor.h"
 
 //==============================================================================
-AudioPluginAudioProcessor::AudioPluginAudioProcessor()
+PluginProcessor::PluginProcessor()
   : AudioProcessor(
       BusesProperties()
 #if !JucePlugin_IsMidiEffect
@@ -15,17 +15,17 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
 {
 }
 
-AudioPluginAudioProcessor::~AudioPluginAudioProcessor() {}
+PluginProcessor::~PluginProcessor() {}
 
 //==============================================================================
 const juce::String
-AudioPluginAudioProcessor::getName() const
+PluginProcessor::getName() const
 {
   return JucePlugin_Name;
 }
 
 bool
-AudioPluginAudioProcessor::acceptsMidi() const
+PluginProcessor::acceptsMidi() const
 {
 #if JucePlugin_WantsMidiInput
   return true;
@@ -35,7 +35,7 @@ AudioPluginAudioProcessor::acceptsMidi() const
 }
 
 bool
-AudioPluginAudioProcessor::producesMidi() const
+PluginProcessor::producesMidi() const
 {
 #if JucePlugin_ProducesMidiOutput
   return true;
@@ -45,7 +45,7 @@ AudioPluginAudioProcessor::producesMidi() const
 }
 
 bool
-AudioPluginAudioProcessor::isMidiEffect() const
+PluginProcessor::isMidiEffect() const
 {
 #if JucePlugin_IsMidiEffect
   return true;
@@ -55,13 +55,13 @@ AudioPluginAudioProcessor::isMidiEffect() const
 }
 
 double
-AudioPluginAudioProcessor::getTailLengthSeconds() const
+PluginProcessor::getTailLengthSeconds() const
 {
   return 0.0;
 }
 
 int
-AudioPluginAudioProcessor::getNumPrograms()
+PluginProcessor::getNumPrograms()
 {
   return 1; // NB: some hosts don't cope very well if you tell them there are 0
             // programs, so this should be at least 1, even if you're not really
@@ -69,49 +69,47 @@ AudioPluginAudioProcessor::getNumPrograms()
 }
 
 int
-AudioPluginAudioProcessor::getCurrentProgram()
+PluginProcessor::getCurrentProgram()
 {
   return 0;
 }
 
 void
-AudioPluginAudioProcessor::setCurrentProgram(int index)
+PluginProcessor::setCurrentProgram(int index)
 {
   juce::ignoreUnused(index);
 }
 
 const juce::String
-AudioPluginAudioProcessor::getProgramName(int index)
+PluginProcessor::getProgramName(int index)
 {
   juce::ignoreUnused(index);
   return {};
 }
 
 void
-AudioPluginAudioProcessor::changeProgramName(int index,
-                                             const juce::String& newName)
+PluginProcessor::changeProgramName(int index, const juce::String& newName)
 {
   juce::ignoreUnused(index, newName);
 }
 
 //==============================================================================
 void
-AudioPluginAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
+PluginProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
   juce::ignoreUnused(sampleRate, samplesPerBlock);
   oscilloscopeProcessor.prepareToPlay(sampleRate, samplesPerBlock);
 }
 
 void
-AudioPluginAudioProcessor::releaseResources()
+PluginProcessor::releaseResources()
 {
   // When playback stops, you can use this as an opportunity to free up any
   // spare memory, etc.
 }
 
 bool
-AudioPluginAudioProcessor::isBusesLayoutSupported(
-  const BusesLayout& layouts) const
+PluginProcessor::isBusesLayoutSupported(const BusesLayout& layouts) const
 {
 #if JucePlugin_IsMidiEffect
   juce::ignoreUnused(layouts);
@@ -136,8 +134,8 @@ AudioPluginAudioProcessor::isBusesLayoutSupported(
 }
 
 void
-AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer,
-                                        juce::MidiBuffer& midiMessages)
+PluginProcessor::processBlock(juce::AudioBuffer<float>& buffer,
+                              juce::MidiBuffer& midiMessages)
 {
   juce::ignoreUnused(midiMessages);
 
@@ -159,20 +157,20 @@ AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer,
 
 //==============================================================================
 bool
-AudioPluginAudioProcessor::hasEditor() const
+PluginProcessor::hasEditor() const
 {
   return true; // (change this to false if you choose to not supply an editor)
 }
 
 juce::AudioProcessorEditor*
-AudioPluginAudioProcessor::createEditor()
+PluginProcessor::createEditor()
 {
-  return new AudioPluginAudioProcessorEditor(*this);
+  return new PluginEditor(*this);
 }
 
 //==============================================================================
 void
-AudioPluginAudioProcessor::getStateInformation(juce::MemoryBlock& destData)
+PluginProcessor::getStateInformation(juce::MemoryBlock& destData)
 {
   // You should use this method to store your parameters in the memory block.
   // You could do that either as raw data, or use the XML or ValueTree classes
@@ -181,8 +179,7 @@ AudioPluginAudioProcessor::getStateInformation(juce::MemoryBlock& destData)
 }
 
 void
-AudioPluginAudioProcessor::setStateInformation(const void* data,
-                                               int sizeInBytes)
+PluginProcessor::setStateInformation(const void* data, int sizeInBytes)
 {
   // You should use this method to restore your parameters from this memory
   // block, whose contents will have been created by the getStateInformation()
@@ -195,5 +192,5 @@ AudioPluginAudioProcessor::setStateInformation(const void* data,
 juce::AudioProcessor* JUCE_CALLTYPE
 createPluginFilter()
 {
-  return new AudioPluginAudioProcessor();
+  return new PluginProcessor();
 }

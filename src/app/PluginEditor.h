@@ -1,22 +1,22 @@
 #pragma once
 
-#include "OscilloscopePanel.h"
+#include "../../external/dmt/gui/panel/OscilloscopePanel.h"
 #include "PluginProcessor.h"
 
 //==============================================================================
-class ProcessorEditor final : public juce::AudioProcessorEditor
+class PluginEditor final : public juce::AudioProcessorEditor
 {
 public:
-  explicit ProcessorEditor(AudioPluginAudioProcessor&);
-  ~ProcessorEditor() override;
+  explicit PluginEditor(PluginProcessor&);
+  ~PluginEditor() override;
 
   //==============================================================================
   void paint(juce::Graphics&) override;
   void resized() override;
 
 private:
-  AudioPluginAudioProcessor& p;
-  OscilloscopePanel mainEditor;
+  PluginProcessor& p;
+  dmt::gui::panel::OscilloscopePanel mainEditor;
 
-  JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioPluginAudioProcessorEditor)
+  JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PluginEditor)
 };
