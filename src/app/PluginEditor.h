@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../external/dmt/gui/panel/OscilloscopePanel.h"
+#include "../../external/dmt/utility/LibrarySettings.h"
 #include "PluginProcessor.h"
 
 //==============================================================================
@@ -16,7 +17,7 @@ public:
 
 private:
   PluginProcessor& p;
-  dmt::gui::panel::OscilloscopePanel mainEditor;
+  dmt::gui::panel::OscilloscopePanel oscilloscopePanel;
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PluginEditor)
 };

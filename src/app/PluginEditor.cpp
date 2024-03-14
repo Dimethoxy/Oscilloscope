@@ -6,7 +6,8 @@ PluginEditor::PluginEditor(PluginProcessor& p)
   : AudioProcessorEditor(&p)
   , p(p)
 {
-  setSize(400, 300);
+  addAndMakeVisible(oscilloscopePanel);
+  setSize(600, 300);
 }
 
 PluginEditor::~PluginEditor() {}
@@ -15,10 +16,11 @@ PluginEditor::~PluginEditor() {}
 void
 PluginEditor::paint(juce::Graphics& g)
 {
-  g.fillAll(juce::Colours::green);
+  g.fillAll(dmt::LibrarySettings::Colours::background);
 }
 
 void
 PluginEditor::resized()
 {
+  oscilloscopePanel.setBounds(getLocalBounds());
 }
