@@ -32,3 +32,5 @@ endif()
 add_definitions(-D_SILENCE_CXX23_ALIGNED_STORAGE_DEPRECATION_WARNING)
 
 add_subdirectory(src)
+
+add_subdirectory(external/dmt)
