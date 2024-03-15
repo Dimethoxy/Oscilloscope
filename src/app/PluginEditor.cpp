@@ -5,6 +5,7 @@
 PluginEditor::PluginEditor(PluginProcessor& p)
   : AudioProcessorEditor(&p)
   , p(p)
+  , oscilloscopePanel(p.oscilloscopeProcessor)
 {
   addAndMakeVisible(oscilloscopePanel);
   setSize(600, 300);

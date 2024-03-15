@@ -17,7 +17,7 @@ public:
 
 private:
   PluginProcessor& p;
-  dmt::gui::panel::OscilloscopePanel oscilloscopePanel;
+  dmt::gui::panel::OscilloscopePanel<float> oscilloscopePanel;
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PluginEditor)
 };
