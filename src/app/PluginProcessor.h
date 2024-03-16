@@ -1,6 +1,7 @@
 #pragma once
 
-#include "../../external/dmt/dsp/processor/OscilloscopeProcessor.h"
+#include "dsp/processor/OscilloscopeProcessor.h"
+#include "utility/LibrarySettings.h"
 #include <JuceHeader.h>
 //==============================================================================
 class PluginProcessor final : public juce::AudioProcessor

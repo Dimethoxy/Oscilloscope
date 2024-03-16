@@ -21,7 +21,13 @@ juce_add_plugin(${PROJECT_NAME}
 target_sources(${PROJECT_NAME}
     PRIVATE
         app/PluginEditor.cpp
-        app/PluginProcessor.cpp)
+        app/PluginProcessor.cpp
+)
+
+target_include_directories(${PROJECT_NAME}
+    PUBLIC
+        ${CMAKE_SOURCE_DIR}/external/dmt
+)
 
 juce_add_binary_data(FontBinaryData
     SOURCES
