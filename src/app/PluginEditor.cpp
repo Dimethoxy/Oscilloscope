@@ -7,8 +7,14 @@ PluginEditor::PluginEditor(PluginProcessor& p)
   , p(p)
   , oscilloscopePanel(p.oscilloscopeProcessor)
 {
+  openGLContext.setComponentPaintingEnabled(true);
+  openGLContext.setContinuousRepainting(false);
+  openGLContext.attachTo(*getTopLevelComponent());
+
   addAndMakeVisible(oscilloscopePanel);
-  setSize(600, 300);
+  setSize(800, 400);
+  setResizable(true, true);
+  setResizeLimits(100, 50, 4000, 2000);
 }
 
 PluginEditor::~PluginEditor() {}
