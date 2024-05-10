@@ -21,7 +21,7 @@ PluginProcessor::~PluginProcessor() {}
 const juce::String
 PluginProcessor::getName() const
 {
-  return JucePlugin_Name;
+  return "Oscilloscope";
 }
 
 bool
@@ -98,7 +98,6 @@ void
 PluginProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
   juce::ignoreUnused(sampleRate, samplesPerBlock);
-  oscilloscopeProcessor.prepareToPlay(sampleRate, samplesPerBlock);
 }
 
 void
@@ -151,8 +150,6 @@ PluginProcessor::processBlock(juce::AudioBuffer<float>& buffer,
   // this code if your algorithm always overwrites all the output channels.
   for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
     buffer.clear(i, 0, buffer.getNumSamples());
-
-  oscilloscopeProcessor.processBlock(buffer);
 }
 
 //==============================================================================
