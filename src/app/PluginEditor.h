@@ -1,6 +1,7 @@
 #pragma once
 
 #include "PluginProcessor.h"
+#include <DmtHeader.h>
 
 //==============================================================================
 class PluginEditor final : public juce::AudioProcessorEditor
@@ -15,5 +16,6 @@ public:
 
 private:
   PluginProcessor& p;
+  dmt::gui::panel::OscilloscopePanel<float> oscilloscopePanel;
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PluginEditor)
 };
