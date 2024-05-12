@@ -11,7 +11,9 @@ PluginProcessor::PluginProcessor()
 #endif
         .withOutput("Output", juce::AudioChannelSet::stereo(), true)
 #endif
-    )
+        )
+  , fifoBuffer(2, 1024)
+  , tempBuffer(2, 1024)
 {
 }
 
@@ -150,6 +152,17 @@ PluginProcessor::processBlock(juce::AudioBuffer<float>& buffer,
   // this code if your algorithm always overwrites all the output channels.
   for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
     buffer.clear(i, 0, buffer.getNumSamples());
+
+  //============================================================================
+
+  // Plugin logic here
+  fifoBuffer.addToFifo(buffer);
+
+  // Copy from fifo to temp buffer
+  fifoBuffer.readFromFifo(tempBuffer);
+
+  // Replace buffer data with temp buffer data
+  buffer = tempBuffer;
 }
 
 //==============================================================================

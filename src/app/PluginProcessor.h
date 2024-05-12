@@ -43,6 +43,8 @@ public:
   void setStateInformation(const void* data, int sizeInBytes) override;
 
   //==============================================================================
+  dmt::dsp::data::FifoAudioBuffer<float> fifoBuffer;
+  juce::AudioBuffer<float> tempBuffer;
 
 private:
   //==============================================================================
