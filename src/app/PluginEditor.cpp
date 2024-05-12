@@ -6,9 +6,6 @@ PluginEditor::PluginEditor(PluginProcessor& p)
   : AudioProcessorEditor(&p)
   , p(p)
 {
-  openGLContext.setComponentPaintingEnabled(true);
-  openGLContext.setContinuousRepainting(false);
-  openGLContext.attachTo(*getTopLevelComponent());
 
   setSize(800, 400);
   setResizable(true, true);
@@ -21,7 +18,7 @@ PluginEditor::~PluginEditor() {}
 void
 PluginEditor::paint(juce::Graphics& g)
 {
-  g.fillAll(dmt::LibrarySettings::Colours::background);
+  g.fillAll(dmt::Settings::Colours::background);
 }
 
 void
