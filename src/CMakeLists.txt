@@ -5,6 +5,10 @@
 cmake_minimum_required(VERSION 3.22)
 project(OscilloscopePlugin VERSION 0.1.0)
 
+if (APPLE)
+    set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64")
+endif()
+
 juce_add_plugin(${PROJECT_NAME}
     PRODUCT_NAME "Oscilloscope"
     COMPANY_NAME "Dimethoxy"
