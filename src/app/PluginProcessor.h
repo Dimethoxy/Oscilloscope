@@ -43,7 +43,7 @@ public:
   void setStateInformation(const void* data, int sizeInBytes) override;
 
   //==============================================================================
-  dmt::dsp::data::AudioFifoBuffer<float> oscilloscopeFifo;
+  dmt::dsp::data::FifoAudioBuffer<float> oscilloscopeFifo;
 
 private:
   //==============================================================================
