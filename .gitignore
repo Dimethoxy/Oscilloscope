@@ -1,4 +1,8 @@
 build/
 output/
-external/
 *.DS_Store
+
+external/*
+external/
+external/juce
+external/dmt
