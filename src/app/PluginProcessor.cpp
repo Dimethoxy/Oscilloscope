@@ -12,7 +12,7 @@ PluginProcessor::PluginProcessor()
         .withOutput("Output", juce::AudioChannelSet::stereo(), true)
 #endif
         )
-  , oscilloscopeFifo(2, 65536)
+  , oscilloscopeFifo(2, 2048)
 {
 }
 
