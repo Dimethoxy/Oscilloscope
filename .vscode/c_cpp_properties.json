@@ -10,7 +10,8 @@
                 "${workspaceFolder}/build/src/OscilloscopePlugin_artefacts/JuceLibraryCode",
                 "${workspaceFolder}/build/src/OscilloscopePlugin_artefacts/JuceLibraryCode",
                 "${workspaceFolder}/external/googletest/googletest/include",
-                "${workspaceFolder}/external/dmt"
+                "${workspaceFolder}/external/dmt",
+                "${workspaceFolder}/build/src/OscilloscopePlugin_artefacts/JuceLibraryCode"
             ],
             "defines": [
                 "_DEBUG",
