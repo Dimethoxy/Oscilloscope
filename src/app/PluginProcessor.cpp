@@ -99,6 +99,7 @@ void
 PluginProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
   juce::ignoreUnused(sampleRate, samplesPerBlock);
+  oscilloscopeFifo.clear();
 }
 
 void
