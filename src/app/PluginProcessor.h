@@ -1,4 +1,5 @@
 #pragma once
+
 #include <DmtHeader.h>
 #include <JuceHeader.h>
 //==============================================================================
@@ -41,6 +42,9 @@ public:
   //==============================================================================
   void getStateInformation(juce::MemoryBlock& destData) override;
   void setStateInformation(const void* data, int sizeInBytes) override;
+
+  //==============================================================================
+  juce::AudioProcessorValueTreeState apvts;
 
   //==============================================================================
   dmt::dsp::data::FifoAudioBuffer<float> oscilloscopeFifo;

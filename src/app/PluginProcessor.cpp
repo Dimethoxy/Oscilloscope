@@ -1,6 +1,6 @@
 #include "PluginProcessor.h"
+#include "ParameterLayout.h"
 #include "PluginEditor.h"
-
 //==============================================================================
 PluginProcessor::PluginProcessor()
   : AudioProcessor(
@@ -12,6 +12,7 @@ PluginProcessor::PluginProcessor()
         .withOutput("Output", juce::AudioChannelSet::stereo(), true)
 #endif
         )
+  , apvts(*this, nullptr, ProjectInfo::projectName, createParameterLayout())
   , oscilloscopeFifo(2, 4096)
 {
 }

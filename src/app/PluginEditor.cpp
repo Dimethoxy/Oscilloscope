@@ -5,12 +5,12 @@
 PluginEditor::PluginEditor(PluginProcessor& p)
   : AudioProcessorEditor(&p)
   , p(p)
-  , oscilloscopePanel(p.oscilloscopeFifo)
+  , oscilloscopePanel(p.oscilloscopeFifo, p.apvts)
 {
   addAndMakeVisible(oscilloscopePanel);
-  setSize(800, 400);
+  setSize(baseWidth, baseHeight);
   setResizable(true, true);
-  setResizeLimits(100, 50, 4000, 2000);
+  setResizeLimits(200, 100, 4000, 2000);
 }
 
 PluginEditor::~PluginEditor() {}
@@ -26,6 +26,9 @@ PluginEditor::paint(juce::Graphics& g)
 void
 PluginEditor::resized()
 {
-  auto bounds = getLocalBounds();
+  const auto bounds = getLocalBounds();
+  const auto height = bounds.getHeight();
+  const auto width = bounds.getWidth();
+  size = (float)height / (float)baseHeight;
   oscilloscopePanel.setBounds(bounds);
 }
