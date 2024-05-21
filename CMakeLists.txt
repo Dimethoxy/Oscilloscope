@@ -22,6 +22,13 @@ CPMAddPackage(
     SOURCE_DIR ${EXT_DIR}/dmt
 )
 
+CPMAddPackage(
+    NAME CLAP_JUCE
+    GITHUB_REPOSITORY free-audio/clap-juce-extensions
+    GIT_TAG main
+    SOURCE_DIR ${EXT_DIR}/clap
+)
+
 if(MSVC)
     add_compile_options(/Qspectre )#/Wall /WX)
 else()

@@ -100,3 +100,7 @@ target_compile_definitions(${PROJECT_NAME}
 )
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/..)
+
+clap_juce_extensions_plugin(TARGET ${PROJECT_NAME}
+    CLAP_ID "com.dimethoxy.oscilloscope"
+    CLAP_FEATURES audio-effect utility analyser oscilloscope)
