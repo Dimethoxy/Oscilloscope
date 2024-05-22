@@ -47,7 +47,7 @@ juce_add_binary_data(FontBinaryData
     ${CMAKE_SOURCE_DIR}/fonts/poppins/Poppins-ExtraBold.ttf
     ${CMAKE_SOURCE_DIR}/fonts/poppins/Poppins-Black.ttf
     ${CMAKE_SOURCE_DIR}/fonts/sedgwick_ave_display/SedgwickAveDisplay-Regular.ttf
-        
+    ${CMAKE_SOURCE_DIR}/icons/material_speed.svg
 )
 
 target_link_libraries(${PROJECT_NAME}

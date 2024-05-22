@@ -10,7 +10,7 @@ PluginEditor::PluginEditor(PluginProcessor& p)
   addAndMakeVisible(oscilloscopePanel);
   setSize(baseWidth, baseHeight);
   setResizable(true, true);
-  setResizeLimits(200, 100, 4000, 2000);
+  setResizeLimits(200, 100, 3000, 1000);
 }
 
 PluginEditor::~PluginEditor() {}
