@@ -28,7 +28,6 @@ PluginEditor::resized()
 {
   const auto bounds = getLocalBounds();
   const auto height = bounds.getHeight();
-  const auto width = bounds.getWidth();
   size = (float)height / (float)baseHeight;
   oscilloscopePanel.setBounds(bounds);
 }
