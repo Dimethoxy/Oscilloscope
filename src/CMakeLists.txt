@@ -76,6 +76,7 @@ target_link_libraries(${PROJECT_NAME}
         juce::juce_recommended_lto_flags
         juce::juce_recommended_warning_flags)
 
+# Set up JUCE flags
 target_compile_definitions(${PROJECT_NAME}
     PRIVATE
         JUCE_WEB_BROWSER=0
@@ -84,9 +85,11 @@ target_compile_definitions(${PROJECT_NAME}
         JUCE_DISPLAY_SPLASH_SCREEN=0
         REPORT_JUCE_APP_USAGE=0)
 
+# Generate JUCE header file
 juce_generate_juce_header(${PROJECT_NAME})
 message("JUCE header file generated!")
 
+# Set up compiler flags for MSVC
 if(MSVC)
     target_compile_definitions(${PROJECT_NAME}
         PRIVATE
@@ -94,6 +97,7 @@ if(MSVC)
     )
 endif()
 
+# Set up OS flags to use in code later
 target_compile_definitions(${PROJECT_NAME}
     PRIVATE
         OS_IS_WINDOWS=$<BOOL:${WIN32}>
@@ -101,8 +105,8 @@ target_compile_definitions(${PROJECT_NAME}
         OS_IS_LINUX=$<BOOL:${UNIX} AND NOT APPLE>
 )
 
+# CLAP support setup
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/..)
-
 clap_juce_extensions_plugin(TARGET ${PROJECT_NAME}
     CLAP_ID "com.dimethoxy.oscilloscope"
     CLAP_FEATURES audio-effect utility analyser oscilloscope)

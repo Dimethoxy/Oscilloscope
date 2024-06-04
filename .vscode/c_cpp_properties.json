@@ -11,7 +11,9 @@
                 "${workspaceFolder}/build/src/OscilloscopePlugin_artefacts/JuceLibraryCode",
                 "${workspaceFolder}/external/googletest/googletest/include",
                 "${workspaceFolder}/external/dmt",
-                "${workspaceFolder}/build/src/OscilloscopePlugin_artefacts/JuceLibraryCode"
+                "${workspaceFolder}/build/src/OscilloscopePlugin_artefacts/JuceLibraryCode",
+                "${workspaceFolder}/build/Debug/src/OscilloscopePlugin_artefacts/JuceLibraryCode",
+                "${workspaceFolder}/build/Debug/src/juce_binarydata_FontBinaryData/JuceLibraryCode"
             ],
             "defines": [
                 "_DEBUG",

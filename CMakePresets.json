@@ -1,0 +1,37 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 21,
+    "patch": 1
+  },
+  "configurePresets": [
+    {
+      "name": "Debug",
+      "hidden": false,
+      "description": "Debug configuration",
+      "binaryDir": "${sourceDir}/build/Debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "Release",
+      "hidden": false,
+      "description": "Release configuration",
+      "binaryDir": "${sourceDir}/build/Release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "PerfettoDebug",
+      "hidden": false,
+      "description": "Perfetto Debug configuration",
+      "binaryDir": "${sourceDir}/build/Perfetto_debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    }
+  ]
+}

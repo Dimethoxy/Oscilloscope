@@ -14,19 +14,23 @@ CPMAddPackage(
     GIT_TAG juce8
     SOURCE_DIR ${EXT_DIR}/juce
 )
-
 CPMAddPackage(
     NAME DMT
     GITHUB_REPOSITORY Dimethoxy/DMT
     GIT_TAG main
     SOURCE_DIR ${EXT_DIR}/dmt
 )
-
 CPMAddPackage(
     NAME CLAP_JUCE
     GITHUB_REPOSITORY free-audio/clap-juce-extensions
     GIT_TAG main
     SOURCE_DIR ${EXT_DIR}/clap
+)
+CPMAddPackage(
+    NAME MELATONIN_PERFETTO
+    GITHUB_REPOSITORY sudara/melatonin_perfetto
+    GIT_TAG main
+    SOURCE_DIR ${EXT_DIR}/perfetto
 )
 
 if(MSVC)

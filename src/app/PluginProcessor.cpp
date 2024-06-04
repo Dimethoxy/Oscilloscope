@@ -15,9 +15,17 @@ PluginProcessor::PluginProcessor()
   , apvts(*this, nullptr, ProjectInfo::projectName, createParameterLayout())
   , oscilloscopeFifo(2, 4096)
 {
+#if PERFETTO
+  MelatoninPerfetto::get().beginSession();
+#endif
 }
 
-PluginProcessor::~PluginProcessor() {}
+PluginProcessor::~PluginProcessor()
+{
+#if PERFETTO
+  MelatoninPerfetto::get().endSession();
+#endif
+}
 
 //==============================================================================
 const juce::String
@@ -153,6 +161,9 @@ PluginProcessor::processBlock(juce::AudioBuffer<float>& buffer,
   // this code if your algorithm always overwrites all the output channels.
   for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
     buffer.clear(i, 0, buffer.getNumSamples());
+
+  //============================================================================
+  TRACE_DSP();
 
   //============================================================================
   oscilloscopeFifo.addToFifo(buffer);

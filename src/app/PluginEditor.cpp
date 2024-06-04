@@ -10,7 +10,7 @@ PluginEditor::PluginEditor(PluginProcessor& p)
   addAndMakeVisible(oscilloscopePanel);
   setSize(baseWidth, baseHeight);
   setResizable(true, true);
-  setResizeLimits(200, 100, 3200, 1000);
+  setResizeLimits(200, 100, 4000, 1000);
 }
 
 PluginEditor::~PluginEditor() {}
@@ -19,6 +19,7 @@ PluginEditor::~PluginEditor() {}
 void
 PluginEditor::paint(juce::Graphics& g)
 {
+  TRACE_COMPONENT();
   g.fillAll(dmt::Settings::Colours::background);
 }
 
