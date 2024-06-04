@@ -2,7 +2,7 @@
 # Main CMakeLists.txt file for the Oscilloscope project
 #==============================================================================
 
-cmake_minimum_required(VERSION 3.22)
+cmake_minimum_required(VERSION 3.26)
 project(Oscilloscope VERSION 0.1.0)
 set(CMAKE_CXX_STANDARD 23)
 set(EXT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external)
