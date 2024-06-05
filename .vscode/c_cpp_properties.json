@@ -13,7 +13,8 @@
                 "${workspaceFolder}/external/dmt",
                 "${workspaceFolder}/build/src/OscilloscopePlugin_artefacts/JuceLibraryCode",
                 "${workspaceFolder}/build/Debug/src/OscilloscopePlugin_artefacts/JuceLibraryCode",
-                "${workspaceFolder}/build/Debug/src/juce_binarydata_FontBinaryData/JuceLibraryCode"
+                "${workspaceFolder}/build/Debug/src/juce_binarydata_FontBinaryData/JuceLibraryCode",
+                "${workspaceFolder}/external/perfetto"
             ],
             "defines": [
                 "_DEBUG",
