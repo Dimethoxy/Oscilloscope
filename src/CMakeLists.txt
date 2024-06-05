@@ -5,10 +5,12 @@
 cmake_minimum_required(VERSION 3.22)
 project(OscilloscopePlugin VERSION 0.1.0)
 
+# If we are on MacOS, we need to build for arm64 and x86_64
 if (APPLE)
     set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64")
 endif()
 
+# JUCE setup
 juce_add_plugin(${PROJECT_NAME}
     PRODUCT_NAME "Oscilloscope"
     COMPANY_NAME "Dimethoxy"
@@ -24,20 +26,21 @@ juce_add_plugin(${PROJECT_NAME}
     PLUGIN_CODE OSCP                 
     )                    
 
+# Add the main source files
 target_sources(${PROJECT_NAME}
     PRIVATE
         app/PluginEditor.cpp
         app/PluginProcessor.cpp
 )
 
+# Add the external libraries
 target_include_directories(${PROJECT_NAME}
     PUBLIC
         ${CMAKE_SOURCE_DIR}/external/dmt
         ${CMAKE_SOURCE_DIR}/external/perfetto
 )
 
-
-
+# Add fonts and icons as binary data so they can be used in the app
 juce_add_binary_data(FontBinaryData
     SOURCES
     ${CMAKE_SOURCE_DIR}/fonts/poppins/Poppins-Thin.ttf
@@ -55,6 +58,7 @@ juce_add_binary_data(FontBinaryData
     ${CMAKE_SOURCE_DIR}/icons/thickness.svg
 )
 
+# Link the libraries
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
         juce::juce_audio_basics
@@ -114,4 +118,4 @@ target_compile_definitions(${PROJECT_NAME}
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/..)
 clap_juce_extensions_plugin(TARGET ${PROJECT_NAME}
     CLAP_ID "com.dimethoxy.oscilloscope"
-    CLAP_FEATURES audio-effect utility analyser oscilloscope)
+    CLAP_FEATURES audio-effect analyser oscilloscope)

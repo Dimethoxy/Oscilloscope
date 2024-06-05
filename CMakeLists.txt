@@ -5,10 +5,10 @@
 cmake_minimum_required(VERSION 3.26)
 project(Oscilloscope VERSION 0.1.0)
 set(CMAKE_CXX_STANDARD 23)
-
 set(EXT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external)
 include(cmake/get_cpm.cmake)
 
+# Add external dependencies
 CPMAddPackage(
     NAME JUCE
     GITHUB_REPOSITORY juce-framework/JUCE
@@ -34,12 +34,13 @@ CPMAddPackage(
     SOURCE_DIR ${EXT_DIR}/perfetto
 )
 
+# Set C++ compiler flags
 if(MSVC)
     add_compile_options(/Qspectre )#/Wall /WX)
 else()
     add_compile_options(-Wall -Wextra -Wpedantic)
-endif() 
+endif()
 
+# Silence some warnings
 add_definitions(-D_SILENCE_CXX23_ALIGNED_STORAGE_DEPRECATION_WARNING)
-
 add_subdirectory(src)

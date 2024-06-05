@@ -19,7 +19,6 @@ PluginEditor::~PluginEditor() {}
 void
 PluginEditor::paint(juce::Graphics& g)
 {
-  TRACE_COMPONENT();
   g.fillAll(dmt::Settings::Colours::background);
 }
 
