@@ -20,7 +20,6 @@
       "hidden": false,
       "description": "Debug configuration",
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build/Debug",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "CMAKE_C_COMPILER": "cl",
@@ -43,7 +42,7 @@
       "hidden": false,
       "description": "Release configuration",
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build/Release",
+      "binaryDir": "${sourceDir}/build",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_C_COMPILER": "cl",
@@ -66,7 +65,7 @@
       "hidden": false,
       "description": "Perfetto Debug configuration",
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build/Perfetto_Debug",
+      "binaryDir": "${sourceDir}/build",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "CMAKE_C_COMPILER": "cl",
@@ -90,7 +89,7 @@
       "hidden": false,
       "description": "Debug configuration for macOS",
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build/Mac_Debug",
+      "binaryDir": "${sourceDir}/build",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "CMAKE_C_COMPILER": "/usr/bin/clang",

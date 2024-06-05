@@ -33,7 +33,10 @@ target_sources(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME}
     PUBLIC
         ${CMAKE_SOURCE_DIR}/external/dmt
+        ${CMAKE_SOURCE_DIR}/external/perfetto
 )
+
+
 
 juce_add_binary_data(FontBinaryData
     SOURCES
@@ -70,11 +73,13 @@ target_link_libraries(${PROJECT_NAME}
         juce::juce_gui_extra
         juce::juce_opengl
         juce::juce_product_unlocking
+        Melatonin::Perfetto
     PUBLIC
         FontBinaryData
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags
-        juce::juce_recommended_warning_flags)
+        juce::juce_recommended_warning_flags
+        )
 
 # Set up JUCE flags
 target_compile_definitions(${PROJECT_NAME}
