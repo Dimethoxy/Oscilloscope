@@ -11,6 +11,10 @@ PluginEditor::PluginEditor(PluginProcessor& p)
   setSize(baseWidth, baseHeight);
   setResizable(true, true);
   setResizeLimits(200, 100, 4000, 1000);
+
+  openGLContext.setComponentPaintingEnabled(true);
+  openGLContext.setContinuousRepainting(false);
+  openGLContext.attachTo(*getTopLevelComponent());
 }
 
 PluginEditor::~PluginEditor() {}
