@@ -23,6 +23,7 @@ PluginEditor::~PluginEditor() {}
 void
 PluginEditor::paint(juce::Graphics& g)
 {
+  TRACER("PluginEditor::paint");
   g.fillAll(dmt::Settings::Colours::background);
 }
 
@@ -30,6 +31,7 @@ PluginEditor::paint(juce::Graphics& g)
 void
 PluginEditor::resized()
 {
+  TRACER("PluginEditor::resized");
   const auto bounds = getLocalBounds();
   const auto height = bounds.getHeight();
   size = (float)height / (float)baseHeight;
