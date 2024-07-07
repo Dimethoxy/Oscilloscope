@@ -29,7 +29,7 @@ CPMAddPackage(
 )
 CPMAddPackage(
     NAME MELATONIN_PERFETTO
-    GITHUB_REPOSITORY sudara/melatonin_perfetto
+    GITHUB_REPOSITORY Lunix-420/melatonin_perfetto
     GIT_TAG main
     SOURCE_DIR ${EXT_DIR}/perfetto
 )
