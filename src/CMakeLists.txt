@@ -14,7 +14,7 @@ endif()
 juce_add_plugin(${PROJECT_NAME}
     PRODUCT_NAME "Oscilloscope"
     COMPANY_NAME "Dimethoxy"
-    FORMATS VST3 Standalone  
+    FORMATS VST3 LV2 AU Standalone  
     VST3_CATEGORIES "Fx" "Analyzer"                   
     IS_SYNTH FALSE
     NEEDS_MIDI_INPUT FALSE
@@ -23,7 +23,8 @@ juce_add_plugin(${PROJECT_NAME}
     EDITOR_WANTS_KEYBOARD_FOCUS FALSE
     #COPY_PLUGIN_AFTER_BUILD TRUE
     PLUGIN_MANUFACTURER_CODE DMTX
-    PLUGIN_CODE OSCP                 
+    PLUGIN_CODE OSCP
+    LV2URI "https://dimethoxy.com/plugins/oscilloscope"                 
     )                    
 
 # Add the main source files
