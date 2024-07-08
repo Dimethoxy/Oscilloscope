@@ -4,7 +4,9 @@
 #include <DmtHeader.h>
 
 //==============================================================================
-class PluginEditor final : public juce::AudioProcessorEditor
+class PluginEditor final
+  : public juce::AudioProcessorEditor
+  , juce::Timer
 {
   float& size = dmt::Settings::Layout::size;
 
@@ -15,6 +17,8 @@ public:
   //==============================================================================
   void paint(juce::Graphics&) override;
   void resized() override;
+  void parentSizeChanged() override;
+  void timerCallback() override;
 
 private:
   int baseWidth = 800;
