@@ -26,12 +26,11 @@ PluginEditor::PluginEditor(PluginProcessor& p)
   lnf.setUsingNativeAlertWindows(true);
   lnf.setColour(juce::ResizableWindow::backgroundColourId,
                 dmt::Settings::Colours::background);
-  // this->getTopLevelComponent();
 
-  addAndMakeVisible(imageComponent);
-  imageComponent.setVisible(false);
   addAndMakeVisible(oscilloscopePanel);
+
   setSize(baseWidth, baseHeight);
+  // setResizeLimits(200, 100, 3000, 1000); // Currently breaks Linux build
 }
 //==============================================================================
 PluginEditor::~PluginEditor() {}
@@ -40,14 +39,16 @@ PluginEditor::~PluginEditor() {}
 void
 PluginEditor::timerCallback()
 {
-  stopTimer();
   TRACER("PluginEditor::timerCallback");
+
+  // This ends resizing mode
+  stopTimer();
   const auto bounds = getLocalBounds();
   const auto height = bounds.getHeight();
   size = (float)height / (float)baseHeight;
   oscilloscopePanel.setBounds(bounds);
   addAndMakeVisible(oscilloscopePanel);
-  imageComponent.setVisible(false);
+  isResizing = false;
 }
 
 //==============================================================================
@@ -56,6 +57,18 @@ PluginEditor::paint(juce::Graphics& g)
 {
   TRACER("PluginEditor::paint");
 
+  // In resizing mode we need to paint a resized version of the cached image
+  if (isResizing) {
+    const int width = jmax(1, getWidth());
+    const int height = jmax(1, getHeight());
+    g.drawImageTransformed(
+      image,
+      AffineTransform::scale(width / (float)image.getWidth(),
+                             height / (float)image.getHeight()));
+    return;
+  }
+
+  // Just painting the background
   g.fillAll(dmt::Settings::Colours::background);
 }
 
@@ -65,28 +78,30 @@ PluginEditor::resized()
 {
   TRACER("PluginEditor::resized");
 
-  // Let's cache this component's graphics to an image
-  if (!imageComponent.isVisible()) {
-    const int width = jmax(1, getWidth());
-    const int height = jmax(1, getHeight());
-    image = Image(PixelFormat::ARGB, width, height, true);
-    juce::Graphics graphics(image);
-    paint(graphics);
+  // Because JUCE is to stupid to handle resize limits without laggig we do this
+  if (getHeight() < 100) {
+    setBounds(getBounds().withHeight(100));
+  }
+  if (getWidth() < 200) {
+    setBounds(getBounds().withWidth(200));
   }
 
-  imageComponent.setImage(image);
-  imageComponent.setVisible(true);
-  imageComponent.setBounds(getLocalBounds());
-  imageComponent.setAlwaysOnTop(true);
+  // Let's cache this component's graphics to an image
+  if (!isResizing) {
+    const int width = jmax(1, getWidth());
+    const int height = jmax(1, getHeight());
+    image = Image(PixelFormat::RGB, width, height, true);
+    juce::Graphics graphics(image);
+    paintEntireComponent(graphics, false);
+  }
 
   // We remove all children to improve resize performance
   removeAllChildren();
 
-  // We start a timer to add the children back after resizing
+  // We go into resizing mode
   stopTimer();
   startTimer(100);
-
-  repaint();
+  isResizing = true;
 }
 void
 PluginEditor::parentSizeChanged()

@@ -33,8 +33,9 @@ private:
   int baseWidth = 800;
   int baseHeight = 400;
   //==============================================================================
-  ImageComponent imageComponent = ImageComponent();
-  Image image = Image(PixelFormat::RGB, 1, 1, true);
+  Image image;
+  bool isResizing = false;
+  //==============================================================================
   dmt::gui::panel::OscilloscopePanel<float> oscilloscopePanel;
   //==============================================================================
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PluginEditor)
