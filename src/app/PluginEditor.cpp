@@ -19,9 +19,17 @@ PluginEditor::PluginEditor(PluginProcessor& p)
     openGLContext.setComponentPaintingEnabled(true);
     openGLContext.setContinuousRepainting(false);
     openGLContext.attachTo(*getTopLevelComponent());
-    setResizable(true, true);
+    setResizable(false, true);
   }
 
+  auto& lnf = this->getLookAndFeel();
+  lnf.setUsingNativeAlertWindows(true);
+  lnf.setColour(juce::ResizableWindow::backgroundColourId,
+                dmt::Settings::Colours::background);
+  // this->getTopLevelComponent();
+
+  addAndMakeVisible(imageComponent);
+  imageComponent.setVisible(false);
   addAndMakeVisible(oscilloscopePanel);
   setSize(baseWidth, baseHeight);
 }
@@ -39,6 +47,7 @@ PluginEditor::timerCallback()
   size = (float)height / (float)baseHeight;
   oscilloscopePanel.setBounds(bounds);
   addAndMakeVisible(oscilloscopePanel);
+  imageComponent.setVisible(false);
 }
 
 //==============================================================================
@@ -46,6 +55,7 @@ void
 PluginEditor::paint(juce::Graphics& g)
 {
   TRACER("PluginEditor::paint");
+
   g.fillAll(dmt::Settings::Colours::background);
 }
 
@@ -55,12 +65,28 @@ PluginEditor::resized()
 {
   TRACER("PluginEditor::resized");
 
+  // Let's cache this component's graphics to an image
+  if (!imageComponent.isVisible()) {
+    const int width = jmax(1, getWidth());
+    const int height = jmax(1, getHeight());
+    image = Image(PixelFormat::ARGB, width, height, true);
+    juce::Graphics graphics(image);
+    paint(graphics);
+  }
+
+  imageComponent.setImage(image);
+  imageComponent.setVisible(true);
+  imageComponent.setBounds(getLocalBounds());
+  imageComponent.setAlwaysOnTop(true);
+
   // We remove all children to improve resize performance
   removeAllChildren();
 
   // We start a timer to add the children back after resizing
   stopTimer();
-  startTimer(500);
+  startTimer(100);
+
+  repaint();
 }
 void
 PluginEditor::parentSizeChanged()

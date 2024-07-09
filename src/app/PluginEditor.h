@@ -8,6 +8,11 @@ class PluginEditor final
   : public juce::AudioProcessorEditor
   , juce::Timer
 {
+  using Image = juce::Image;
+  using PixelFormat = juce::Image::PixelFormat;
+  using OpenGLContext = juce::OpenGLContext;
+
+  //==============================================================================
   float& size = dmt::Settings::Layout::size;
 
 public:
@@ -21,14 +26,16 @@ public:
   void timerCallback() override;
 
 private:
+  //==============================================================================
+  PluginProcessor& p;
+  OpenGLContext openGLContext;
+  //==============================================================================
   int baseWidth = 800;
   int baseHeight = 400;
-
-  PluginProcessor& p;
-
+  //==============================================================================
+  ImageComponent imageComponent = ImageComponent();
+  Image image = Image(PixelFormat::RGB, 1, 1, true);
   dmt::gui::panel::OscilloscopePanel<float> oscilloscopePanel;
-
-  OpenGLContext openGLContext;
-
+  //==============================================================================
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PluginEditor)
 };
