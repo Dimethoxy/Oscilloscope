@@ -176,15 +176,39 @@
       }
     },
     //=====================================================================
-    // Linux Perfetto
+    // Linux Debug Perfetto
     {
-      "name": "Linux Perfetto",
+      "name": "Linux Debug Perfetto",
       "hidden": false,
       "description": "Perfetto Debug configuration for Linux",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_C_COMPILER": "/usr/bin/gcc",
+        "CMAKE_CXX_COMPILER": "/usr/bin/g++",
+        "CMAKE_CXX_FLAGS": "-DPERFETTO=1"
+      },
+      "environment": {
+        "CC": "/usr/bin/gcc",
+        "CXX": "/usr/bin/g++"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    //=====================================================================
+    // Linux Release Perfetto
+    {
+      "name": "Linux Release Perfetto",
+      "hidden": false,
+      "description": "Perfetto Release configuration for Linux",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_C_COMPILER": "/usr/bin/gcc",
         "CMAKE_CXX_COMPILER": "/usr/bin/g++",
         "CMAKE_CXX_FLAGS": "-DPERFETTO=1"
