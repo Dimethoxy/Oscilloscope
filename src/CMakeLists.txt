@@ -39,6 +39,7 @@ target_include_directories(${PROJECT_NAME}
     PUBLIC
         ${CMAKE_SOURCE_DIR}/external/dmt
         ${CMAKE_SOURCE_DIR}/external/perfetto
+        ${CMAKE_SOURCE_DIR}/external/tomlplusplus
 )
 
 # Add fonts and icons as binary data so they can be used in the app
