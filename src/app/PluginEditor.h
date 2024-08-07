@@ -13,7 +13,7 @@ class PluginEditor final
   using OpenGLContext = juce::OpenGLContext;
 
   //==============================================================================
-  float& size = dmt::Settings::Layout::size;
+  float& size = dmt::Settings::Window::size;
 
 public:
   explicit PluginEditor(PluginProcessor&);
