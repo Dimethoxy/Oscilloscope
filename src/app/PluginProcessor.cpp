@@ -18,8 +18,8 @@ PluginProcessor::PluginProcessor()
 #if PERFETTO
   MelatoninPerfetto::get().beginSession();
 #endif
-  auto properties = dmt::configuration::Properties::getInstance();
-  properties->initialize(ProjectInfo::projectName);
+  // auto properties = dmt::configuration::Properties::getInstance();
+  // properties->initialize(ProjectInfo::projectName);
 }
 
 PluginProcessor::~PluginProcessor()
