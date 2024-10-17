@@ -1,0 +1,131 @@
+name: Build Project
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        build_type: [Release]
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup MSVC
+        if: matrix.os == 'windows-latest'
+        uses: TheMrMilchmann/setup-msvc-dev@v3
+        with:
+          arch: x64
+          spectre: true
+
+      - name: Set Up Windows
+        if: matrix.os == 'windows-latest'
+        run: choco install ninja
+
+      - name: Set Up Mac
+        if: matrix.os == 'macos-latest'
+        run: brew install ninja osxutils
+
+      - name: Set Up Linux
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install ninja-build
+          sudo apt install libasound2-dev libx11-dev \
+            libxinerama-dev libxext-dev libfreetype6-dev \
+            libwebkit2gtk-4.0-dev libglu1-mesa-dev xvfb
+          sudo /usr/bin/Xvfb $DISPLAY &
+
+      - name: Configure Build on Windows
+        if: matrix.os == 'windows-latest'
+        run: cmake --preset "Windows Release"
+
+      - name: Configure Build on macOS
+        if: matrix.os == 'macos-latest'
+        run: cmake --preset "Mac Release" -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
+
+      - name: Configure Build on Linux
+        if: matrix.os == 'ubuntu-latest'
+        run: cmake --preset "Linux Release"
+
+      - name: Build
+        run: cmake --build build --config "Release"
+
+      - name: Package Windows Artifacts
+        if: matrix.os == 'windows-latest'
+        run: |
+          mkdir -p artifacts
+          cp -r build/src/OscilloscopePlugin_artefacts/Release/VST3 artifacts/
+          cp -r build/src/OscilloscopePlugin_artefacts/Release/CLAP artifacts/
+        shell: bash
+
+      - name: Package macOS Artifacts
+        if: matrix.os == 'macos-latest'
+        run: |
+          mkdir -p artifacts
+          cp -r build/src/OscilloscopePlugin_artefacts/Release/VST3 artifacts/
+          cp -r build/src/OscilloscopePlugin_artefacts/Release/CLAP artifacts/
+          cp -r build/src/OscilloscopePlugin_artefacts/Release/AU artifacts/
+        shell: bash
+
+      - name: Package Linux Artifacts
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          mkdir -p artifacts
+          cp -r build/src/OscilloscopePlugin_artefacts/Release/VST3 artifacts/
+          cp -r build/src/OscilloscopePlugin_artefacts/Release/LV2 artifacts/
+          cp -r build/src/OscilloscopePlugin_artefacts/Release/CLAP artifacts/
+        shell: bash
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts-${{ matrix.os }}
+          path: artifacts
+
+  release:
+    runs-on: ubuntu-latest
+    needs: build
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: Get Artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Zip Artifacts
+        run: |
+          zip -r oscilloscope-snapshot-macos.zip ./build-artifacts-macos-latest
+          zip -r oscilloscope-snapshot-linux.zip ./build-artifacts-ubuntu-latest
+          zip -r oscilloscope-snapshot-windows.zip ./build-artifacts-windows-latest
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: "Snapshot"
+          prerelease: true
+          body: |
+              ### ⚠️ WARNING: Unstable Release ⚠️
+              This is a **unstable** snapshot intended solely for testing purposes.
+              It may contain bugs, incomplete features, or cause instability.
+              **Not recommended** for production or general use—proceed with caution.
+              
+      - name: Upload Assets
+        run: |
+          gh release upload "Snapshot" oscilloscope-snapshot-macos.zip --clobber
+          gh release upload "Snapshot" oscilloscope-snapshot-linux.zip --clobber
+          gh release upload "Snapshot" oscilloscope-snapshot-windows.zip --clobber
