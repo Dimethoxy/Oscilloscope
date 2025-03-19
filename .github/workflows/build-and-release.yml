@@ -1,0 +1,404 @@
+#===========================================================================================
+# This workflow will build the project for Windows, macOS, and Linux.
+# It will also build an Arch Linux and Fedora package using Docker containers.
+# The artifacts will be uploaded to the release page.
+#
+# TODO:
+# - Add a step to sign the macOS package
+# - Add a step after release to update the AUR repository
+#===========================================================================================
+
+name: Build Project
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+defaults:
+  run:
+    shell: bash
+
+#===========================================================================================
+# Build Jobs
+#===========================================================================================
+jobs:
+  #=========================================================================================
+  # Windows Build
+  #=========================================================================================
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup MSVC
+        uses: TheMrMilchmann/setup-msvc-dev@v3
+        with:
+          arch: x64
+          spectre: true
+
+      - name: Set Up Windows
+        run: choco install ninja
+
+      - name: Select CMake Preset
+        run: cmake --preset "Windows Release"
+
+      - name: Build
+        run: cmake --build build --config "Release"
+
+      - name: Package Windows Artifacts
+        run: |
+          mkdir -p artifacts
+          cp -r build/src/OscilloscopePlugin_artefacts/Release/VST3 artifacts/
+          cp -r build/src/OscilloscopePlugin_artefacts/Release/CLAP artifacts/
+        shell: bash
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts-windows
+          path: artifacts
+
+  #=========================================================================================
+  # macOS Build
+  #=========================================================================================
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set Up Mac
+        run: brew install ninja osxutils
+
+      - name: Select CMake Preset
+        run: cmake --preset "Mac Release" -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
+
+      - name: Build
+        run: cmake --build build --config "Release"
+
+      - name: Package macOS Artifacts
+        if: matrix.os == 'macos-latest'
+        run: |
+          mkdir -p artifacts
+          cp -r build/src/OscilloscopePlugin_artefacts/Release/VST3 artifacts/
+          cp -r build/src/OscilloscopePlugin_artefacts/Release/CLAP artifacts/
+          cp -r build/src/OscilloscopePlugin_artefacts/Release/AU artifacts/
+        shell: bash
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts-macos
+          path: artifacts
+
+  #=========================================================================================
+  # Ubuntu Linux Build
+  #=========================================================================================
+  build-ubuntu:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set Up Linux
+        run: |
+          sudo apt-get update
+          sudo apt-get install ninja-build
+          sudo apt install libasound2-dev \
+                           libjack-jackd2-dev \
+                           ladspa-sdk \
+                           libcurl4-openssl-dev  \
+                           libfreetype-dev \
+                           libfontconfig1-dev \
+                           libx11-dev \
+                           libxcomposite-dev \
+                           libxcursor-dev \
+                           libxext-dev \
+                           libxinerama-dev \
+                           libxrandr-dev \
+                           libxrender-dev \
+                           libwebkit2gtk-4.1-dev \
+                           libglu1-mesa-dev mesa-common-dev
+          sudo apt-get install -y dpkg-dev devscripts
+          sudo /usr/bin/Xvfb $DISPLAY &
+        shell: bash
+
+      - name: Select CMake Preset
+        run: cmake --preset "Linux Release"
+
+      - name: Build
+        run: cmake --build build --config "Release"
+
+      - name: Package Linux Artifacts
+        run: |
+          # Define variables
+          ARTIFACTS_DIR="artifacts"
+          BUILD_DIR="build/src/OscilloscopePlugin_artefacts/Release"
+          DEBIAN_PACKAGE_DIR="oscilloscope-snapshot-linux-ubuntu"
+          DEBIAN_CONTROL_FILE="pkg/ubuntu/control"
+          CLAP_DIR="/usr/lib/clap/Oscilloscope"
+          LV2_DIR="/usr/lib/lv2/Oscilloscope"
+          VST3_DIR="/usr/lib/vst3/Oscilloscope"
+
+          # Prepare artifacts directory
+          mkdir -p $ARTIFACTS_DIR
+
+          # Prepare Debian package directory structure
+          mkdir -p $DEBIAN_PACKAGE_DIR/DEBIAN
+          mkdir -p $DEBIAN_PACKAGE_DIR/$CLAP_DIR
+          mkdir -p $DEBIAN_PACKAGE_DIR/$LV2_DIR
+          mkdir -p $DEBIAN_PACKAGE_DIR/$VST3_DIR
+
+          # Copy files to Debian package directory
+          cp -r $BUILD_DIR/CLAP/Oscilloscope.clap \
+                $DEBIAN_PACKAGE_DIR/$CLAP_DIR/
+          cp -r $BUILD_DIR/LV2/Oscilloscope.lv2 \
+                $DEBIAN_PACKAGE_DIR/$LV2_DIR/
+          cp -r $BUILD_DIR/VST3/Oscilloscope.vst3 \
+                $DEBIAN_PACKAGE_DIR/$VST3_DIR/
+
+          # Copy vanilla files to artifacts directory
+          cp -r $BUILD_DIR/LV2/Oscilloscope.lv2 \
+                $ARTIFACTS_DIR/
+          cp -r $BUILD_DIR/CLAP/Oscilloscope.clap \
+                $ARTIFACTS_DIR/
+          cp -r $BUILD_DIR/VST3/Oscilloscope.vst3 \
+                $ARTIFACTS_DIR/
+
+          # Copy control file to Debian package directory
+          cp $DEBIAN_CONTROL_FILE $DEBIAN_PACKAGE_DIR/DEBIAN
+
+          # Build Debian package
+          dpkg-deb --build $DEBIAN_PACKAGE_DIR
+
+          # Move Debian package to artifacts
+          cp -r $DEBIAN_PACKAGE_DIR.deb $ARTIFACTS_DIR/
+        shell: bash
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts-ubuntu
+          path: artifacts
+
+  #=========================================================================================
+  # Fedora Linux Build
+  #=========================================================================================
+  build-fedora:
+    runs-on: ubuntu-latest
+    container:
+      image: fedora:latest
+    steps:
+      - name: Install Dependencies
+        run: |
+          dnf install -y rpmdevtools rpmlint
+          dnf install -y git cmake gcc gcc-c++ ninja-build
+          dnf install -y alsa-lib-devel \
+                         jack-audio-connection-kit-devel \
+                         ladspa-devel \
+                         libcurl-devel \
+                         freetype-devel \
+                         fontconfig-devel \
+                         libX11-devel \
+                         libXcomposite-devel \
+                         libXcursor-devel \
+                         libXext-devel \
+                         libXinerama-devel \
+                         libXrandr-devel \
+                         libXrender-devel \
+                         webkit2gtk3-devel \
+                         mesa-libGLU-devel mesa-libGL-devel
+        shell: bash
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Select CMake Preset
+        run: cmake --preset "Linux Release"
+
+      - name: Build
+        run: cmake --build build --config "Release"
+
+      - name: Package Fedora Artifacts
+        run: |
+          # Define variables
+          ARTIFACTS_DIR="artifacts" # The directory where the artifacts will be stored
+          BUILD_DIR="build/src/OscilloscopePlugin_artefacts/Release" # Here are the already built artifacts
+          FEDORA_PACKAGE_DIR="oscilloscope-snapshot-linux-fedora" # The directory with the files to package 
+          CLAP_DIR="/usr/lib/clap/Oscilloscope" # The directory where the CLAP files will be installed
+          LV2_DIR="/usr/lib/lv2/Oscilloscope" # The directory where the LV2 files will be installed
+          VST3_DIR="/usr/lib/vst3/Oscilloscope" # The directory where the VST3 files will be installed
+
+          # Get the latest Git hash
+          GIT_HASH=$(git rev-parse --short HEAD)
+
+          # Ensure GIT_HASH is not empty
+          if [ -z "$GIT_HASH" ]; then
+              echo "Error: GIT_HASH is empty. Exiting."
+              exit 1
+          fi
+
+          # Copy the files to the Fedora package directory
+          mkdir -p $FEDORA_PACKAGE_DIR/
+          cp -r $BUILD_DIR/CLAP $FEDORA_PACKAGE_DIR/
+          cp -r $BUILD_DIR/LV2 $FEDORA_PACKAGE_DIR/
+          cp -r $BUILD_DIR/VST3 $FEDORA_PACKAGE_DIR/
+
+          # Create the tarball
+          TARBALL_NAME="dimethoxy-oscilloscope-snapshot-${GIT_HASH}.tar.gz"
+          tar -czf $TARBALL_NAME $FEDORA_PACKAGE_DIR
+
+          # Set up the RPM build directory
+          rpmdev-setuptree
+
+          # Copy the tarball to the RPM build directory
+          cp $TARBALL_NAME ~/rpmbuild/SOURCES/
+
+          # Copy the spec file to the RPM build directory
+          cp pkg/fedora/snapshot.spec ~/rpmbuild/SPECS/dimethoxy-oscilloscope-snapshot.spec
+
+          # Build the RPM package with the Git hash correctly defined
+          rpmbuild --define "git_hash ${GIT_HASH}" -ba ~/rpmbuild/SPECS/dimethoxy-oscilloscope-snapshot.spec
+
+          # Move the RPM package to the artifacts directory
+          mkdir -p $ARTIFACTS_DIR
+          mv ~/rpmbuild/RPMS/x86_64/*.rpm $ARTIFACTS_DIR/
+        shell: bash
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts-fedora
+          path: artifacts
+
+  #=========================================================================================
+  # Arch Linux Build
+  #=========================================================================================
+  build-archlinux:
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+    steps:
+      - name: Install Base Packages
+        run: |
+          pacman -Sy --noconfirm base-devel git
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Create user for build process
+        run: |
+          useradd -m dimethoxy
+          sudo su - dimethoxy
+
+      - name: Set permissions for the build directory
+        run: |
+          sudo chown -R dimethoxy:dimethoxy /__w/Oscilloscope/Oscilloscope/pkg/arch/git
+          sudo chmod -R u+rw /__w/Oscilloscope/Oscilloscope/pkg/arch/git
+
+      - name: Disable sudo password prompt
+        run: |
+          echo 'dimethoxy ALL=(ALL) NOPASSWD: ALL' | sudo tee -a /etc/sudoers
+
+      - name: Build Package
+        run: |
+          sudo -u dimethoxy bash -c 'cd pkg/arch/git && makepkg -s --noconfirm'
+
+      - name: Package Artifacts
+        run: |
+          # Remove the default package
+          rm pkg/arch/git/*debug*.pkg.tar.zst
+
+          # Move the package to the root directory
+          mv pkg/arch/git/*.pkg.tar.zst .
+
+          # Rename the package
+          mv *.pkg.tar.zst oscilloscope-snapshot-linux-arch.pkg.tar.zst
+
+          # Move the package to the artifacts directory
+          mkdir -p artifacts
+          mv oscilloscope-snapshot-linux-arch.pkg.tar.zst artifacts/
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts-archlinux
+          path: artifacts
+
+  #=========================================================================================
+  # Release the project
+  #=========================================================================================
+  release:
+    runs-on: ubuntu-latest
+    needs:
+      [build-windows, build-macos, build-ubuntu, build-fedora, build-archlinux]
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Get Artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Package Artifacts
+        run: |
+          # Move the Arch package to the root directory
+          mv build-artifacts-archlinux/oscilloscope-snapshot-linux-arch.pkg.tar.zst .
+
+          # Move the Fedora package to the root directory
+          mv build-artifacts-fedora/*.rpm .
+
+          # Move the deb package to the root directory
+          mv build-artifacts-ubuntu/oscilloscope-snapshot-linux-ubuntu.deb .
+
+          # Zip the artifacts
+          zip -r oscilloscope-snapshot-linux-vanilla.zip ./build-artifacts-ubuntu
+          zip -r oscilloscope-snapshot-macos.zip ./build-artifacts-macos
+          zip -r oscilloscope-snapshot-windows.zip ./build-artifacts-windows
+
+      - name: Delete Old Snapshot Release (if exists)
+        run: |
+          # Get the release ID of the old snapshot release if it exists
+          RELEASE_ID=$(gh release view "Snapshot" --json id -q ".id")
+
+          # If the release exists, delete it
+          if [ -n "$RELEASE_ID" ]; then
+            echo "Deleting old release..."
+            gh release delete "Snapshot" --yes
+          else
+            echo "No old release found, creating a new one."
+          fi
+
+      - name: Delete the old Snapshot tag
+        run: |
+          # Get the tag ID of the old snapshot tag if it exists
+          TAG_ID=$(gh api repos/:owner/:repo/git/ref/tags/Snapshot --json object.sha -q ".object.sha")
+
+          # If the tag exists, delete it
+          if [ -n "$TAG_ID" ]; then
+            echo "Deleting old tag..."
+            gh api repos/:owner/:repo/git/refs/:ref --method DELETE
+          else
+            echo "No old tag found, creating a new one."
+          fi
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: "Snapshot"
+          prerelease: true
+          body: |
+            ### ⚠️ WARNING: Unstable Release ⚠️
+            This is a **unstable** snapshot intended solely for testing purposes.
+            It may contain bugs, incomplete features, or cause instability.
+            **Not recommended** for production or general use—proceed with caution.
+
+      - name: Upload Artifacts
+        run: |
+          gh release upload "Snapshot" oscilloscope-snapshot-linux-arch.pkg.tar.zst --clobber
+          gh release upload "Snapshot" oscilloscope-snapshot-linux-ubuntu.deb --clobber
+          gh release upload "Snapshot" oscilloscope-snapshot-linux-vanilla.zip --clobber
+          gh release upload "Snapshot" oscilloscope-snapshot-macos.zip --clobber
+          gh release upload "Snapshot" oscilloscope-snapshot-windows.zip --clobber
