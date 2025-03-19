@@ -1,0 +1,8 @@
+Package: dimethoxy-oscilloscope-snapshot
+Version: 1.0-1
+Architecture: amd64
+Maintainer: David Hess (Lunix) <davidhess336@gmx.de>
+Depends: curl
+Priority: optional
+Section: sound
+Description: Oscilloscope Analyzer for VST3, CLAP and LV2 compatible hosts
