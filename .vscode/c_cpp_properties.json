@@ -14,7 +14,11 @@
                 "${workspaceFolder}/build/src/OscilloscopePlugin_artefacts/JuceLibraryCode",
                 "${workspaceFolder}/build/Debug/src/OscilloscopePlugin_artefacts/JuceLibraryCode",
                 "${workspaceFolder}/build/Debug/src/juce_binarydata_FontBinaryData/JuceLibraryCode",
-                "${workspaceFolder}/external/perfetto"
+                "${workspaceFolder}/external/perfetto",
+                "${workspaceFolder}/build/src/juce_binarydata_FontBinaryData/JuceLibraryCode",
+                "${workspaceFolder}/build/src/OscilloscopePlugin_artefacts/JuceLibraryCode",
+                "${workspaceFolder}/external/melatonin_perfetto",
+                "${workspaceFolder}/external"
             ],
             "defines": [
                 "_DEBUG",
@@ -26,6 +30,27 @@
             "cStandard": "c23",
             "intelliSenseMode": "windows-msvc-x64",
             "cppStandard": "c++23"
+        },
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/build/src/juce_binarydata_FontBinaryData/JuceLibraryCode/**"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/g++-13",
+            "intelliSenseMode": "${default}",
+            "compilerPathInCppPropertiesJson": "/usr/bin/clang",
+            "cStandard": "c23",
+            "cppStandard": "c++23",
+            "mergeConfigurations": false,
+            "browse": {
+                "path": [
+                    "/data/development/Oscilloscope/**",
+                    "${workspaceFolder}"
+                ],
+                "limitSymbolsToIncludedHeaders": true
+            }
         }
     ],
     "version": 4

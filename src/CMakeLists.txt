@@ -21,11 +21,10 @@ juce_add_plugin(${PROJECT_NAME}
     NEEDS_MIDI_OUTPUT FALSE
     IS_MIDI_EFFECT FALSE
     EDITOR_WANTS_KEYBOARD_FOCUS FALSE
-    #COPY_PLUGIN_AFTER_BUILD TRUE
     PLUGIN_MANUFACTURER_CODE DMTX
-    PLUGIN_CODE OSCP
+    PLUGIN_CODE OSCS
     LV2URI "https://dimethoxy.com/plugins/oscilloscope"                 
-    )                    
+    )
 
 # Add the main source files
 target_sources(${PROJECT_NAME}
@@ -38,7 +37,7 @@ target_sources(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME}
     PUBLIC
         ${CMAKE_SOURCE_DIR}/external/dmt
-        ${CMAKE_SOURCE_DIR}/external/perfetto
+        ${CMAKE_SOURCE_DIR}/external/melatonin_perfetto
         ${CMAKE_SOURCE_DIR}/external/tomlplusplus
 )
 
@@ -56,8 +55,10 @@ juce_add_binary_data(FontBinaryData
    ${CMAKE_SOURCE_DIR}/fonts/poppins/Poppins-Black.ttf
    ${CMAKE_SOURCE_DIR}/fonts/sedgwick_ave_display/SedgwickAveDisplay-Regular.ttf
    ${CMAKE_SOURCE_DIR}/icons/speed.svg
+   ${CMAKE_SOURCE_DIR}/icons/back.svg
    ${CMAKE_SOURCE_DIR}/icons/height.svg
    ${CMAKE_SOURCE_DIR}/icons/thickness.svg
+   ${CMAKE_SOURCE_DIR}/icons/gear.svg
 )
 
 # Link the libraries
@@ -80,18 +81,27 @@ target_link_libraries(${PROJECT_NAME}
         juce::juce_opengl
         juce::juce_product_unlocking
         Melatonin::Perfetto
+        melatonin_blur
     PUBLIC
         FontBinaryData
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags
         juce::juce_recommended_warning_flags
-        )
+)
+
+# Conditionally link curl only on Linux
+if(UNIX AND NOT APPLE)
+    target_link_libraries(${PROJECT_NAME}
+        PRIVATE
+            curl
+    )
+endif()
 
 # Set up JUCE flags
 target_compile_definitions(${PROJECT_NAME}
     PRIVATE
+        JUCE_USE_CURL=$<BOOL:${UNIX}>
         JUCE_WEB_BROWSER=0
-        JUCE_USE_CURL=0
         JUCE_VST3_CAN_REPLACE_VST2=0
         JUCE_DISPLAY_SPLASH_SCREEN=0
         REPORT_JUCE_APP_USAGE=0)
@@ -120,4 +130,4 @@ target_compile_definitions(${PROJECT_NAME}
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/..)
 clap_juce_extensions_plugin(TARGET ${PROJECT_NAME}
     CLAP_ID "com.dimethoxy.oscilloscope"
-    CLAP_FEATURES audio-effect analyser oscilloscope)
+    CLAP_FEATURES audio-effect filter equalizer)

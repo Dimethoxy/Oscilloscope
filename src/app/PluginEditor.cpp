@@ -6,6 +6,7 @@ PluginEditor::PluginEditor(PluginProcessor& p)
   : AudioProcessorEditor(&p)
   , p(p)
   , oscilloscopePanel(p.oscilloscopeFifo, p.apvts)
+  , compositor("Oscilloscope", oscilloscopePanel)
 {
   if (OS_IS_WINDOWS) {
     setResizable(true, true);
@@ -16,40 +17,28 @@ PluginEditor::PluginEditor(PluginProcessor& p)
   }
 
   if (OS_IS_LINUX) {
-    openGLContext.setComponentPaintingEnabled(true);
-    openGLContext.setContinuousRepainting(false);
-    openGLContext.attachTo(*getTopLevelComponent());
-    setResizable(false, true);
+    // openGLContext.setComponentPaintingEnabled(true);
+    // openGLContext.setContinuousRepainting(false);
+    // openGLContext.attachTo(*getTopLevelComponent());
+    // setResizable(true, true);
   }
 
-  auto& lnf = this->getLookAndFeel();
-  lnf.setUsingNativeAlertWindows(true);
-  lnf.setColour(juce::ResizableWindow::backgroundColourId,
-                dmt::Settings::Colours::background);
+  if (auto* constrainer = getConstrainer()) {
+    const auto aspectRatio = (double)baseWidth / (double)baseHeight;
+    constrainer->setFixedAspectRatio(aspectRatio);
+    const auto minWidth = baseWidth / 2;
+    const auto minHeight = baseHeight / 2;
+    const auto maxWidth = baseWidth * 4;
+    const auto maxHeight = baseHeight * 4;
+    constrainer->setSizeLimits(minWidth, minHeight, maxWidth, maxHeight);
+  }
 
-  addAndMakeVisible(oscilloscopePanel);
-
+  addAndMakeVisible(compositor);
+  setResizable(true, true);
   setSize(baseWidth, baseHeight);
-  // setResizeLimits(200, 100, 3000, 1000); // Currently breaks Linux build
 }
 //==============================================================================
 PluginEditor::~PluginEditor() {}
-
-//==============================================================================
-void
-PluginEditor::timerCallback()
-{
-  TRACER("PluginEditor::timerCallback");
-
-  // This ends resizing mode
-  stopTimer();
-  const auto bounds = getLocalBounds();
-  const auto height = bounds.getHeight();
-  size = (float)height / (float)baseHeight;
-  oscilloscopePanel.setBounds(bounds);
-  addAndMakeVisible(oscilloscopePanel);
-  isResizing = false;
-}
 
 //==============================================================================
 void
@@ -57,19 +46,8 @@ PluginEditor::paint(juce::Graphics& g)
 {
   TRACER("PluginEditor::paint");
 
-  // In resizing mode we need to paint a resized version of the cached image
-  if (isResizing) {
-    const int width = jmax(1, getWidth());
-    const int height = jmax(1, getHeight());
-    g.drawImageTransformed(
-      image,
-      AffineTransform::scale(width / (float)image.getWidth(),
-                             height / (float)image.getHeight()));
-    return;
-  }
-
   // Just painting the background
-  g.fillAll(dmt::Settings::Colours::background);
+  g.fillAll(dmt::Settings::Window::backroundColour);
 }
 
 //==============================================================================
@@ -78,33 +56,16 @@ PluginEditor::resized()
 {
   TRACER("PluginEditor::resized");
 
-  // Because JUCE is to stupid to handle resize limits without laggig we do this
-  if (getHeight() < 100) {
-    setBounds(getBounds().withHeight(100));
-  }
-  if (getWidth() < 200) {
-    setBounds(getBounds().withWidth(200));
-  }
+  // Set the global size
+  float newSize = (float)getHeight() / (float)baseHeight;
 
-  // Let's cache this component's graphics to an image
-  if (!isResizing) {
-    const int width = jmax(1, getWidth());
-    const int height = jmax(1, getHeight());
-    image = Image(PixelFormat::RGB, width, height, true);
-    juce::Graphics graphics(image);
-    paintEntireComponent(graphics, false);
+  // Make sure the size makes sense
+  if (newSize <= 0.0f || std::isinf(newSize)) {
+    jassertfalse;
   }
 
-  // We remove all children to improve resize performance
-  removeAllChildren();
+  dmt::Settings::Window::size = newSize;
 
-  // We go into resizing mode
-  stopTimer();
-  startTimer(100);
-  isResizing = true;
-}
-void
-PluginEditor::parentSizeChanged()
-{
-  TRACER("PluginEditor::parentSizeChanged");
+  // Set the bounds of the compositor to the bounds of the PluginEditor
+  compositor.setBoundsRelative(0.0f, 0.0f, 1.0f, 1.0f);
 }
