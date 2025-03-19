@@ -13,8 +13,8 @@ class PluginEditor final : public juce::AudioProcessorEditor
 
   // Window size
   float& size = dmt::Settings::Window::size;
-  const int baseWidth = 900;
-  const int baseHeight = 500;
+  const int baseWidth = 800;
+  const int baseHeight = 400;
 
 public:
   explicit PluginEditor(PluginProcessor&);
