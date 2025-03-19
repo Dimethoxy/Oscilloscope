@@ -48,6 +48,7 @@ public:
 
   //==============================================================================
   dmt::dsp::data::FifoAudioBuffer<float> oscilloscopeFifo;
+  dmt::version::Manager versionManager;
 
 private:
 #if PERFETTO
