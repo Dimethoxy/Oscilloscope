@@ -18,6 +18,18 @@ defaults:
     shell: bash
 
 #===========================================================================================
+# Environment Variables
+env:
+  PROJECT_NAME: Oscilloscope
+  BUNDLE_NAME: oscilloscope
+  BUNDLE_ID: com.dimethoxy.oscilloscope
+  VERSION: 0.1.0
+  BUILD_DIR: build
+  DISPLAY: :0 # Linux pluginval needs this
+  HOMEBREW_NO_INSTALL_CLEANUP: 1
+  IPP_DIR: C:\Program Files (x86)\Intel\oneAPI\ipp\latest\lib\cmake\ipp
+
+#===========================================================================================
 # Build Jobs
 #===========================================================================================
 jobs:
@@ -27,6 +39,11 @@ jobs:
   build-windows:
     runs-on: windows-latest
     steps:
+      - name: Export Variables
+        run: |
+          echo "BUILD_ARTIFACTS_DIR=$BUILD_DIR/src/${{env.PROJECT_NAME}}Plugin_artefacts/Release" >> $GITHUB_ENV
+          echo "WINDOWS-PACKAGE=${{env.BUNDLE_NAME}}-snapshot-windows.exe" >> $GITHUB_ENV
+
       - name: Checkout Code
         uses: actions/checkout@v4
 
@@ -37,25 +54,64 @@ jobs:
           spectre: true
 
       - name: Set Up Windows
-        run: choco install ninja
+        run: |
+          choco install ninja
+          choco install innosetup
+
+      - name: Cache IPP (Windows)
+        id: cache-ipp
+        uses: actions/cache@v4
+        with:
+          key: ipp-v6
+          path: C:\Program Files (x86)\Intel
+
+      - name: Install IPP (Windows)
+        if: steps.cache-ipp.outputs.cache-hit != 'true'
+        run: |
+          curl --output oneapi.exe https://registrationcenter-download.intel.com/akdlm/IRC_NAS/2e89fab4-e1c7-4f14-a1ef-6cddba8c5fa7/intel-ipp-2022.0.0.796_offline.exe
+          ./oneapi.exe -s -x -f oneapi
+          ./oneapi/bootstrapper.exe -s -c --action install --components=intel.oneapi.win.ipp.devel --eula=accept -p=NEED_VS2022_INTEGRATION=1 --log-dir=.
+
+      - name: Save IPP cache
+        if: steps.cache-ipp.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: C:\Program Files (x86)\Intel
+          key: ipp-v6
 
       - name: Select CMake Preset
-        run: cmake --preset "Windows Release"
+        run: |
+          cmake --preset "Windows Release"
 
       - name: Build
         run: cmake --build build --config "Release"
 
-      - name: Package Windows Artifacts
+      - name: Copy Build Artifacts
         run: |
           mkdir -p artifacts
-          cp -r build/src/OscilloscopePlugin_artefacts/Release/VST3 artifacts/
-          cp -r build/src/OscilloscopePlugin_artefacts/Release/CLAP artifacts/
+          cp -r ${{env.BUILD_ARTIFACTS_DIR}}/VST3/${{env.PROJECT_NAME}}.vst3 \
+                artifacts/
+          cp -r ${{env.BUILD_ARTIFACTS_DIR}}/CLAP/${{env.PROJECT_NAME}}.clap \
+                artifacts/
+        shell: bash
+
+      - name: Create Installer
+        run: |
+          # Create the packaging directory
+          mkdir -p packaging
+
+          # Create the Inno Setup
+          envsubst < pkg/windows/Setup.iss > packaging/Setup.iss
+          iscc packaging/Setup.iss
+
+          # Move the installer to the artifacts directory
+          mv packaging/Output/"${{env.PROJECT_NAME}}_Setup.exe" artifacts/${{env.WINDOWS-PACKAGE}}
         shell: bash
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: build-artifacts-windows
+          name: artifacts-windows
           path: artifacts
 
   #=========================================================================================
@@ -64,6 +120,11 @@ jobs:
   build-macos:
     runs-on: macos-latest
     steps:
+      - name: Export Variables
+        run: |
+          echo "BUILD_ARTIFACTS_DIR=$BUILD_DIR/src/${{env.PROJECT_NAME}}Plugin_artefacts/Release" >> $GITHUB_ENV
+          echo "MAC_PACKAGE=${{env.BUNDLE_NAME}}-snapshot-macos.pkg" >> $GITHUB_ENV
+
       - name: Checkout Code
         uses: actions/checkout@v4
 
@@ -71,24 +132,119 @@ jobs:
         run: brew install ninja osxutils
 
       - name: Select CMake Preset
-        run: cmake --preset "Mac Release" -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
+        run: |
+          cmake --preset "Mac Release" \
+            -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
 
       - name: Build
         run: cmake --build build --config "Release"
 
-      - name: Package macOS Artifacts
-        if: matrix.os == 'macos-latest'
+      - name: Copy Build Artifacts
         run: |
           mkdir -p artifacts
-          cp -r build/src/OscilloscopePlugin_artefacts/Release/VST3 artifacts/
-          cp -r build/src/OscilloscopePlugin_artefacts/Release/CLAP artifacts/
-          cp -r build/src/OscilloscopePlugin_artefacts/Release/AU artifacts/
+          cp -r ${{env.BUILD_ARTIFACTS_DIR}}/VST3/${{env.PROJECT_NAME}}.vst3 \
+                artifacts/
+          cp -r ${{env.BUILD_ARTIFACTS_DIR}}/CLAP/${{env.PROJECT_NAME}}.clap \
+                artifacts/
+          cp -r ${{env.BUILD_ARTIFACTS_DIR}}/AU/${{env.PROJECT_NAME}}.component \
+                artifacts/
+        shell: bash
+
+      - name: Import Certificates
+        uses: sudara/basic-macos-keychain-action@v1
+        id: keychain
+        with:
+          dev-id-app-cert: ${{ secrets.DEV_ID_APP_CERT }}
+          dev-id-app-password: ${{ secrets.DEV_ID_PASSWORD }}
+          dev-id-installer-cert: ${{ secrets.DEV_ID_INSTALL_CERT }}
+          dev-id-installer-password: ${{ secrets.DEV_ID_PASSWORD }}
+
+      - name: Codesign (macOS)
+        run: |
+          # Set variables
+          VST3_BIN="artifacts/${{env.PROJECT_NAME}}.vst3/Contents/MacOS/${{env.PROJECT_NAME}}"
+          CLAP_BIN="artifacts/${{env.PROJECT_NAME}}.clap/Contents/MacOS/${{env.PROJECT_NAME}}"
+          AU_BIN="artifacts/${{env.PROJECT_NAME}}.component/Contents/MacOS/${{env.PROJECT_NAME}}"
+
+          # Codesign the binaries
+          codesign \
+            --force -s "${{secrets.DEVELOPER_ID_APPLICATION}}" \
+            -v "$VST3_BIN" \
+            --deep --strict --options=runtime --timestamp
+          codesign \
+            --force -s "${{secrets.DEVELOPER_ID_APPLICATION}}" \
+            -v "$CLAP_BIN" \
+            --deep --strict --options=runtime --timestamp
+          codesign \
+            --force -s "${{secrets.DEVELOPER_ID_APPLICATION}}" \
+            -v "$AU_BIN" \
+            --deep --strict --options=runtime --timestamp
+        shell: bash
+
+      - name: Create Installer
+        run: |
+          # Set variables
+          VST3_PATH="artifacts/${{env.PROJECT_NAME}}.vst3"
+          CLAP_PATH="artifacts/${{env.PROJECT_NAME}}.clap"
+          AU_PATH="artifacts/${{env.PROJECT_NAME}}.component"
+          PACKAGE_NAME="${{env.PROJECT_NAME}}-snapshot-macos.pkg"
+
+          # Create the packaging directory
+          mkdir -p packaging
+
+          # Create the distribution file
+          envsubst < pkg/mac/distribution.xml > packaging/distribution.xml
+
+          # Create the VST subpackage
+          pkgbuild \
+            --identifier "${{env.BUNDLE_ID}}.vst3.pkg" \
+            --version "$VERSION" \
+            --component "$VST3_PATH" \
+            --install-location "/Library/Audio/Plug-Ins/VST3" \
+            "packaging/${{env.PROJECT_NAME}}.vst3.pkg"
+
+          # Create the CLAP subpackage
+          pkgbuild \
+            --identifier "${{env.BUNDLE_ID}}.clap.pkg" \
+            --version "$VERSION" \
+            --component "$CLAP_PATH" \
+            --install-location "/Library/Audio/Plug-Ins/CLAP" \
+            "packaging/${{env.PROJECT_NAME}}.clap.pkg"
+
+          # Create the AU subpackage
+          pkgbuild \
+            --identifier "${{env.BUNDLE_ID}}.au.pkg" \
+            --version "$VERSION" \
+            --component "$AU_PATH" \
+            --install-location "/Library/Audio/Plug-Ins/Components" \
+            "packaging/${{env.PROJECT_NAME}}.au.pkg"
+
+          # Create the main package
+          cd packaging
+          productbuild \
+            --resources ./resources \
+            --distribution distribution.xml \
+            --sign "${{secrets.DEVELOPER_ID_INSTALLER}}" \
+            --timestamp "${{env.PROJECT_NAME}}.pkg"
+
+          # Notarize the package
+          xcrun notarytool submit "${{env.PROJECT_NAME}}.pkg" \
+            --apple-id ${{secrets.NOTARIZATION_USERNAME}} \
+            --password ${{secrets.NOTARIZATION_PASSWORD}} \
+            --team-id ${{secrets.TEAM_ID}} \
+            --wait
+
+          # Staple the package
+          xcrun stapler staple "${{env.PROJECT_NAME}}.pkg"
+
+          # Move the package to the artifacts directory
+          mv ${{env.PROJECT_NAME}}.pkg ../artifacts/${{env.MAC_PACKAGE}}
         shell: bash
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: build-artifacts-macos
+          name: artifacts-macos
           path: artifacts
 
   #=========================================================================================
@@ -97,6 +253,12 @@ jobs:
   build-ubuntu:
     runs-on: ubuntu-latest
     steps:
+      - name: Export Variables
+        run: |
+          echo "BUILD_ARTIFACTS_DIR=$BUILD_DIR/src/${{env.PROJECT_NAME}}Plugin_artefacts/Release" >> $GITHUB_ENV
+          echo "UBUNTU_PACKAGE=${{env.BUNDLE_NAME}}-snapshot-linux-ubuntu.deb" >> $GITHUB_ENV
+          echo "LINUX_PACKAGE=${{env.BUNDLE_NAME}}-snapshot-linux-vanilla.zip" >> $GITHUB_ENV
+
       - name: Checkout Code
         uses: actions/checkout@v4
 
@@ -124,151 +286,70 @@ jobs:
         shell: bash
 
       - name: Select CMake Preset
-        run: cmake --preset "Linux Release"
+        run: |
+          cmake --preset "Linux Release"
 
       - name: Build
         run: cmake --build build --config "Release"
+
+      - name: Copy Artifacts
+        run: |
+          mkdir -p artifacts
+          cp -r ${{env.BUILD_ARTIFACTS_DIR}}/VST3/${{env.PROJECT_NAME}}.vst3 \
+                artifacts/
+          cp -r ${{env.BUILD_ARTIFACTS_DIR}}/CLAP/${{env.PROJECT_NAME}}.clap \
+                artifacts/
+          cp -r ${{env.BUILD_ARTIFACTS_DIR}}/LV2/${{env.PROJECT_NAME}}.lv2 \
+                artifacts/
+        shell: bash
 
       - name: Package Linux Artifacts
         run: |
-          # Define variables
-          ARTIFACTS_DIR="artifacts"
-          BUILD_DIR="build/src/OscilloscopePlugin_artefacts/Release"
-          DEBIAN_PACKAGE_DIR="oscilloscope-snapshot-linux-ubuntu"
-          DEBIAN_CONTROL_FILE="pkg/ubuntu/control"
-          CLAP_DIR="/usr/lib/clap/Oscilloscope"
-          LV2_DIR="/usr/lib/lv2/Oscilloscope"
-          VST3_DIR="/usr/lib/vst3/Oscilloscope"
+          # Set variables
+          UBUNTU_PACKAGE_DIR="${{env.BUNDLE_NAME}}-snapshot-linux-ubuntu"
+          UBUNTU_CONTROL_FILE="pkg/ubuntu/control"
+          VST3_INSTALL_DIR="/usr/lib/vst3/${{env.PROJECT_NAME}}"
+          CLAP_INSTALL_DIR="/usr/lib/clap/${{env.PROJECT_NAME}}"
+          LV2_INSTALL_DIR="/usr/lib/lv2/${{env.PROJECT_NAME}}"
 
-          # Prepare artifacts directory
-          mkdir -p $ARTIFACTS_DIR
+          # Create Vanilla package directory
+          mkdir -p vanilla
+          cp -r artifacts/${{env.PROJECT_NAME}}.vst3 vanilla/
+          cp -r artifacts/${{env.PROJECT_NAME}}.clap vanilla/
+          cp -r artifacts/${{env.PROJECT_NAME}}.lv2 vanilla/
 
-          # Prepare Debian package directory structure
-          mkdir -p $DEBIAN_PACKAGE_DIR/DEBIAN
-          mkdir -p $DEBIAN_PACKAGE_DIR/$CLAP_DIR
-          mkdir -p $DEBIAN_PACKAGE_DIR/$LV2_DIR
-          mkdir -p $DEBIAN_PACKAGE_DIR/$VST3_DIR
+          # Zip and move the package to the artifacts directory
+          zip -r ${{env.LINUX_PACKAGE}} vanilla/*
+          mv ${{env.LINUX_PACKAGE}} artifacts/$LINUX_PACKAGE
+
+          # Create Debian package directory
+          mkdir -p $UBUNTU_PACKAGE_DIR/DEBIAN
+          mkdir -p $UBUNTU_PACKAGE_DIR/$VST3_INSTALL_DIR
+          mkdir -p $UBUNTU_PACKAGE_DIR/$CLAP_INSTALL_DIR
+          mkdir -p $UBUNTU_PACKAGE_DIR/$LV2_INSTALL_DIR
 
           # Copy files to Debian package directory
-          cp -r $BUILD_DIR/CLAP/Oscilloscope.clap \
-                $DEBIAN_PACKAGE_DIR/$CLAP_DIR/
-          cp -r $BUILD_DIR/LV2/Oscilloscope.lv2 \
-                $DEBIAN_PACKAGE_DIR/$LV2_DIR/
-          cp -r $BUILD_DIR/VST3/Oscilloscope.vst3 \
-                $DEBIAN_PACKAGE_DIR/$VST3_DIR/
-
-          # Copy vanilla files to artifacts directory
-          cp -r $BUILD_DIR/LV2/Oscilloscope.lv2 \
-                $ARTIFACTS_DIR/
-          cp -r $BUILD_DIR/CLAP/Oscilloscope.clap \
-                $ARTIFACTS_DIR/
-          cp -r $BUILD_DIR/VST3/Oscilloscope.vst3 \
-                $ARTIFACTS_DIR/
+          cp -r artifacts/${{env.PROJECT_NAME}}.vst3 \
+                $UBUNTU_PACKAGE_DIR/$VST3_INSTALL_DIR/
+          cp -r artifacts/${{env.PROJECT_NAME}}.clap \
+                $UBUNTU_PACKAGE_DIR/$CLAP_INSTALL_DIR/
+          cp -r artifacts/${{env.PROJECT_NAME}}.lv2 \
+                $UBUNTU_PACKAGE_DIR/$LV2_INSTALL_DIR/
 
           # Copy control file to Debian package directory
-          cp $DEBIAN_CONTROL_FILE $DEBIAN_PACKAGE_DIR/DEBIAN
+          cp $UBUNTU_CONTROL_FILE $UBUNTU_PACKAGE_DIR/DEBIAN
 
           # Build Debian package
-          dpkg-deb --build $DEBIAN_PACKAGE_DIR
+          dpkg-deb --build $UBUNTU_PACKAGE_DIR
 
-          # Move Debian package to artifacts
-          cp -r $DEBIAN_PACKAGE_DIR.deb $ARTIFACTS_DIR/
+          # Move the package to the artifacts directory
+          cp -r *.deb artifacts/${{env.UBUNTU_PACKAGE}}
         shell: bash
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: build-artifacts-ubuntu
-          path: artifacts
-
-  #=========================================================================================
-  # Fedora Linux Build
-  #=========================================================================================
-  build-fedora:
-    runs-on: ubuntu-latest
-    container:
-      image: fedora:latest
-    steps:
-      - name: Install Dependencies
-        run: |
-          dnf install -y rpmdevtools rpmlint
-          dnf install -y git cmake gcc gcc-c++ ninja-build
-          dnf install -y alsa-lib-devel \
-                         jack-audio-connection-kit-devel \
-                         ladspa-devel \
-                         libcurl-devel \
-                         freetype-devel \
-                         fontconfig-devel \
-                         libX11-devel \
-                         libXcomposite-devel \
-                         libXcursor-devel \
-                         libXext-devel \
-                         libXinerama-devel \
-                         libXrandr-devel \
-                         libXrender-devel \
-                         webkit2gtk3-devel \
-                         mesa-libGLU-devel mesa-libGL-devel
-        shell: bash
-
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Select CMake Preset
-        run: cmake --preset "Linux Release"
-
-      - name: Build
-        run: cmake --build build --config "Release"
-
-      - name: Package Fedora Artifacts
-        run: |
-          # Define variables
-          ARTIFACTS_DIR="artifacts" # The directory where the artifacts will be stored
-          BUILD_DIR="build/src/OscilloscopePlugin_artefacts/Release" # Here are the already built artifacts
-          FEDORA_PACKAGE_DIR="oscilloscope-snapshot-linux-fedora" # The directory with the files to package 
-          CLAP_DIR="/usr/lib/clap/Oscilloscope" # The directory where the CLAP files will be installed
-          LV2_DIR="/usr/lib/lv2/Oscilloscope" # The directory where the LV2 files will be installed
-          VST3_DIR="/usr/lib/vst3/Oscilloscope" # The directory where the VST3 files will be installed
-
-          # Get the latest Git hash
-          GIT_HASH=$(git rev-parse --short HEAD)
-
-          # Ensure GIT_HASH is not empty
-          if [ -z "$GIT_HASH" ]; then
-              echo "Error: GIT_HASH is empty. Exiting."
-              exit 1
-          fi
-
-          # Copy the files to the Fedora package directory
-          mkdir -p $FEDORA_PACKAGE_DIR/
-          cp -r $BUILD_DIR/CLAP $FEDORA_PACKAGE_DIR/
-          cp -r $BUILD_DIR/LV2 $FEDORA_PACKAGE_DIR/
-          cp -r $BUILD_DIR/VST3 $FEDORA_PACKAGE_DIR/
-
-          # Create the tarball
-          TARBALL_NAME="dimethoxy-oscilloscope-snapshot-${GIT_HASH}.tar.gz"
-          tar -czf $TARBALL_NAME $FEDORA_PACKAGE_DIR
-
-          # Set up the RPM build directory
-          rpmdev-setuptree
-
-          # Copy the tarball to the RPM build directory
-          cp $TARBALL_NAME ~/rpmbuild/SOURCES/
-
-          # Copy the spec file to the RPM build directory
-          cp pkg/fedora/snapshot.spec ~/rpmbuild/SPECS/dimethoxy-oscilloscope-snapshot.spec
-
-          # Build the RPM package with the Git hash correctly defined
-          rpmbuild --define "git_hash ${GIT_HASH}" -ba ~/rpmbuild/SPECS/dimethoxy-oscilloscope-snapshot.spec
-
-          # Move the RPM package to the artifacts directory
-          mkdir -p $ARTIFACTS_DIR
-          mv ~/rpmbuild/RPMS/x86_64/*.rpm $ARTIFACTS_DIR/
-        shell: bash
-
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-artifacts-fedora
+          name: artifacts-ubuntu
           path: artifacts
 
   #=========================================================================================
@@ -279,6 +360,11 @@ jobs:
     container:
       image: archlinux:latest
     steps:
+      - name: Export Variables
+        run: |
+          echo "BUILD_ARTIFACTS_DIR=$BUILD_DIR/src/${{env.PROJECT_NAME}}Plugin_artefacts/Release" >> $GITHUB_ENV
+          echo "PACKAGE_NAME=${{env.BUNDLE_NAME}}-snapshot-linux-arch.pkg.tar.zst" >> $GITHUB_ENV
+
       - name: Install Base Packages
         run: |
           pacman -Sy --noconfirm base-devel git
@@ -293,8 +379,8 @@ jobs:
 
       - name: Set permissions for the build directory
         run: |
-          sudo chown -R dimethoxy:dimethoxy /__w/Oscilloscope/Oscilloscope/pkg/arch/git
-          sudo chmod -R u+rw /__w/Oscilloscope/Oscilloscope/pkg/arch/git
+          sudo chown -R dimethoxy:dimethoxy /__w/${{env.PROJECT_NAME}}/${{env.PROJECT_NAME}}/pkg/arch/git
+          sudo chmod -R u+rw /__w/${{env.PROJECT_NAME}}/${{env.PROJECT_NAME}}/pkg/arch/git
 
       - name: Disable sudo password prompt
         run: |
@@ -313,16 +399,17 @@ jobs:
           mv pkg/arch/git/*.pkg.tar.zst .
 
           # Rename the package
-          mv *.pkg.tar.zst oscilloscope-snapshot-linux-arch.pkg.tar.zst
+          mv *.pkg.tar.zst ${{env.PACKAGE_NAME}}
 
           # Move the package to the artifacts directory
           mkdir -p artifacts
-          mv oscilloscope-snapshot-linux-arch.pkg.tar.zst artifacts/
+          mv ${{env.PACKAGE_NAME}} artifacts/
+        shell: bash
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: build-artifacts-archlinux
+          name: artifacts-archlinux
           path: artifacts
 
   #=========================================================================================
@@ -330,8 +417,7 @@ jobs:
   #=========================================================================================
   release:
     runs-on: ubuntu-latest
-    needs:
-      [build-windows, build-macos, build-ubuntu, build-fedora, build-archlinux]
+    needs: [build-windows, build-macos, build-ubuntu, build-archlinux]
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -344,45 +430,12 @@ jobs:
 
       - name: Package Artifacts
         run: |
-          # Move the Arch package to the root directory
-          mv build-artifacts-archlinux/oscilloscope-snapshot-linux-arch.pkg.tar.zst .
-
-          # Move the Fedora package to the root directory
-          mv build-artifacts-fedora/*.rpm .
-
-          # Move the deb package to the root directory
-          mv build-artifacts-ubuntu/oscilloscope-snapshot-linux-ubuntu.deb .
-
-          # Zip the artifacts
-          zip -r oscilloscope-snapshot-linux-vanilla.zip ./build-artifacts-ubuntu
-          zip -r oscilloscope-snapshot-macos.zip ./build-artifacts-macos
-          zip -r oscilloscope-snapshot-windows.zip ./build-artifacts-windows
-
-      - name: Delete Old Snapshot Release (if exists)
-        run: |
-          # Get the release ID of the old snapshot release if it exists
-          RELEASE_ID=$(gh release view "Snapshot" --json id -q ".id")
-
-          # If the release exists, delete it
-          if [ -n "$RELEASE_ID" ]; then
-            echo "Deleting old release..."
-            gh release delete "Snapshot" --yes
-          else
-            echo "No old release found, creating a new one."
-          fi
-
-      - name: Delete the old Snapshot tag
-        run: |
-          # Get the tag ID of the old snapshot tag if it exists
-          TAG_ID=$(gh api repos/:owner/:repo/git/ref/tags/Snapshot --json object.sha -q ".object.sha")
-
-          # If the tag exists, delete it
-          if [ -n "$TAG_ID" ]; then
-            echo "Deleting old tag..."
-            gh api repos/:owner/:repo/git/refs/:ref --method DELETE
-          else
-            echo "No old tag found, creating a new one."
-          fi
+          mv artifacts-windows/*.exe .
+          mv artifacts-macos/*.pkg .
+          mv artifacts-ubuntu/*.deb .
+          mv artifacts-ubuntu/*.zip .
+          mv artifacts-archlinux/*.pkg.tar.zst .
+        shell: bash
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
@@ -397,8 +450,9 @@ jobs:
 
       - name: Upload Artifacts
         run: |
-          gh release upload "Snapshot" oscilloscope-snapshot-linux-arch.pkg.tar.zst --clobber
-          gh release upload "Snapshot" oscilloscope-snapshot-linux-ubuntu.deb --clobber
-          gh release upload "Snapshot" oscilloscope-snapshot-linux-vanilla.zip --clobber
-          gh release upload "Snapshot" oscilloscope-snapshot-macos.zip --clobber
-          gh release upload "Snapshot" oscilloscope-snapshot-windows.zip --clobber
+          ls -la
+          gh release upload "Snapshot" ${{env.BUNDLE_NAME}}-snapshot-windows.exe --clobber
+          gh release upload "Snapshot" ${{env.BUNDLE_NAME}}-snapshot-linux-arch.pkg.tar.zst --clobber
+          gh release upload "Snapshot" ${{env.BUNDLE_NAME}}-snapshot-linux-ubuntu.deb --clobber
+          gh release upload "Snapshot" ${{env.BUNDLE_NAME}}-snapshot-linux-vanilla.zip --clobber
+          gh release upload "Snapshot" ${{env.BUNDLE_NAME}}-snapshot-macos.pkg --clobber
