@@ -23,7 +23,8 @@ juce_add_plugin(${PROJECT_NAME}
     EDITOR_WANTS_KEYBOARD_FOCUS FALSE
     PLUGIN_MANUFACTURER_CODE DMTX
     PLUGIN_CODE OSCS
-    LV2URI "https://dimethoxy.com/plugins/oscilloscope"                 
+    LV2URI "https://dimethoxy.com/plugins/oscilloscope"
+    BUNDLE_ID com.dimethoxy.oscilloscope          
     )
 
 # Add the main source files
