@@ -48,6 +48,7 @@ public:
 
   //==============================================================================
   dmt::dsp::data::FifoAudioBuffer<float> oscilloscopeFifo;
+  dmt::configuration::Properties properties;
   dmt::version::Manager versionManager;
 
 private:
