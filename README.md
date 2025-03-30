@@ -4,7 +4,7 @@
 > Dimethoxy Oscilloscope is currently a work in progress. While it's functional, some features are unfinished, and certain buttons or functionalities may not work as expected.
 > Expect updates and improvements as development continues!
 
-The Oscilloscope is a real-time audio visualization plugin designed to give you precise insight into your waveforms. Whether you're shaping kicks for Hardstyle, dialing in sound design, or just want a slick visual representation of your audio, this tool delivers crisp, responsive visuals with minimal CPU impact.
+The Oscilloscope is a real-time audio visualization plugin designed to give you precise insight into your waveforms. Whether you're shaping kicks, inspecting dynamics, or just want a slick visual representation of your audio, this tool delivers crisp, responsive visuals.
 
 ## 🔥 Features
 
