@@ -6,16 +6,17 @@
 static inline juce::AudioProcessorValueTreeState::ParameterLayout
 createParameterLayout()
 {
-  using ParameterInt = juce::AudioParameterInt;
-  using ParameterFloat = juce::AudioParameterFloat;
-  using ParameterChoice = juce::AudioParameterChoice;
   using ParameterGroup = juce::AudioProcessorParameterGroup;
-  using NormalisableRange = juce::NormalisableRange<float>;
   namespace Model = dmt::model;
 
   juce::String uid = "";
 
+  // Generate version hint from JUCE plugin version info
+  constexpr int versionHint = 1;
+
   return juce::AudioProcessorValueTreeState::ParameterLayout{
-    std::make_unique<ParameterGroup>(Model::oscilloscopeParameterGroup(uid))
+    std::make_unique<ParameterGroup>(Model::globalParameterGroup(versionHint)),
+    std::make_unique<ParameterGroup>(
+      Model::oscilloscopeParameterGroup(uid, versionHint)),
   };
 }

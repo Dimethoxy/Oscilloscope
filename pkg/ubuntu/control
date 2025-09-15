@@ -1,5 +1,5 @@
-Package: dimethoxy-oscilloscope-snapshot
-Version: 1.0-1
+Package: dimethoxy-${PACKAGE_NAME}
+Version: ${PACKAGE_VERSION}-1
 Architecture: amd64
 Maintainer: David Hess (Lunix) <davidhess336@gmx.de>
 Depends: curl

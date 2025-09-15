@@ -1,15 +1,14 @@
 # Maintainer: Lunix (David Hess) <davidhess336@gmx.de>
 pkgname='dimethoxy-oscilloscope-bin'
-pkgver=0.0.0
+pkgver=1.0.0 # Oscilloscope-Version
 pkgrel=1
-pkgdesc="Oscilloscope Analyzer for VST3 and LV2 compatible hosts"
+pkgdesc="Oscilloscope Analyzer for VST3, CLAP and LV2 compatible hosts"
 arch=('x86_64')
 url="https://github.com/Dimethoxy/Oscilloscope"
 license=('GPL3')
 provides=('dimethoxy-oscilloscope')
-depends=('curl')
 source=("https://github.com/Dimethoxy/Oscilloscope/releases/download/v$pkgver/oscilloscope-v$pkgver-linux.tar.gz")
-sha256sums=('SKIP')
+sha256sums=('f61cfd287b0d58b9eca419c6c785e66a8bf94caf26b33615aa465c25bd8ee4e1')
 
 package() {
     # Define new directories
@@ -18,6 +17,7 @@ package() {
 
     # Install plugins (use cp -r for directories)
     cp -r "$srcdir/Oscilloscope.vst3" "$pkgdir/usr/lib/vst3/Dimethoxy/Oscilloscope/"
+    cp -r "$srcdir/Oscilloscope.clap" "$pkgdir/usr/lib/clap/Dimethoxy/Oscilloscope/"
     cp -r "$srcdir/Oscilloscope.lv2" "$pkgdir/usr/lib/lv2/Dimethoxy/Oscilloscope/"
 
     # Download and install the LICENSE from the remote URL

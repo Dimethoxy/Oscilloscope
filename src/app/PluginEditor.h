@@ -4,7 +4,9 @@
 #include <DmtHeader.h>
 
 //==============================================================================
-class PluginEditor final : public juce::AudioProcessorEditor
+class PluginEditor
+  : public juce::AudioProcessorEditor
+  , private juce::Timer
 {
   using Image = juce::Image;
   using ImageComponent = juce::ImageComponent;
@@ -12,9 +14,11 @@ class PluginEditor final : public juce::AudioProcessorEditor
   using OpenGLContext = juce::OpenGLContext;
 
   // Window size
-  float& size = dmt::Settings::Window::size;
   const int baseWidth = 800;
-  const int baseHeight = 400;
+  const int baseHeight = 450;
+
+  // Window header
+  const int& headerHeight = dmt::Settings::Header::height;
 
 public:
   explicit PluginEditor(PluginProcessor&);
@@ -23,6 +27,14 @@ public:
   //==============================================================================
   void paint(juce::Graphics&) override;
   void resized() override;
+  void setConstraints(int width, int height);
+  void handleHeaderVisibilityChange(bool isHeaderVisible);
+
+  // Debounced resizing
+  void timerCallback() override;
+  void detachCompositorForResize();
+  void attachCompositorAfterResize();
+  void updateCompositorSnapshot();
 
 private:
   //==============================================================================
@@ -33,12 +45,16 @@ private:
   int lastWidth = baseWidth;
   int lastHeight = baseHeight;
   double ratio = baseWidth / baseHeight;
+  float& sizeFactor = p.scaleFactor;
   //==============================================================================
   Image image;
   bool isResizing = false;
   //==============================================================================
   dmt::gui::panel::OscilloscopePanel<float> oscilloscopePanel;
   dmt::gui::window::Compositor compositor;
+  //==============================================================================
+  juce::Image compositorSnapshot;
+  bool compositorAttached = true;
   //==============================================================================
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PluginEditor)
 };

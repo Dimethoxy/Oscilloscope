@@ -1,0 +1,47 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch AudioPluginHost Linux",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "/data/development/juce/extras/AudioPluginHost/Builds/LinuxMakefile/build/AudioPluginHost",
+      "args": [],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
+      ]
+    },
+    {
+      "name": "Launch AudioPluginHost MacOS",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "/Applications/AudioPluginHost.app/Contents/MacOS/AudioPluginHost",
+      "args": [],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "lldb"
+    },
+    {
+      "name": "Launch FL Studio (Windows)",
+      "type": "cppvsdbg",
+      "request": "launch",
+      "program": "S:\\other-programms\\flstudio\\FL64.exe",
+      "args": [],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
+      "environment": [],
+      "console": "internalConsole"
+    }
+  ]
+}

@@ -3,7 +3,7 @@
 #==============================================================================
 
 cmake_minimum_required(VERSION 3.30)
-project(Oscilloscope VERSION 0.1.0)
+project(Oscilloscope VERSION 1.0.0) # Oscilloscope-Version
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_SUPPRESS_DEVELOPER_WARNINGS TRUE) 
 set(EXT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external)
