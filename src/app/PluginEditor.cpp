@@ -7,7 +7,7 @@ PluginEditor::PluginEditor(PluginProcessor& p)
   , p(p)
   , sizeFactor(p.scaleFactor)
   , mainLayout({ 1.0 }, { 1.0 })
-  , compositor("Oscilloscope", mainLayout, p.apvts, p.properties, sizeFactor)
+  , compositor("OscilloScoPe", mainLayout, p.apvts, p.properties, sizeFactor)
   , compositorAttached(true)
 {
   if (OS_IS_WINDOWS) {

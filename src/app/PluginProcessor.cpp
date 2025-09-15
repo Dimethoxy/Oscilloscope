@@ -18,7 +18,18 @@ PluginProcessor::PluginProcessor()
 #if PERFETTO
   MelatoninPerfetto::get().beginSession();
 #endif
-  properties.initialize();
+
+  // We create an override for the background of the headers title
+  dmt::configuration::SettingsOverrides settingsOverrides;
+  settingsOverrides.push_back({ "Header.TitleButtonWidth", 170.0f });
+
+  // We create a replacement for the primary color
+  dmt::configuration::SettingsReplacements settingsReplacements;
+  settingsReplacements.push_back({ juce::Colour::fromString("#50FA7B"),
+                                   juce::Colour::fromString("#8be9fd") });
+
+  // Initialize properties with overrides and replacements
+  properties.initialize(settingsOverrides, settingsReplacements);
 }
 
 PluginProcessor::~PluginProcessor()
