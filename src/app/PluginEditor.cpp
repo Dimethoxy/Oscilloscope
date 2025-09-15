@@ -5,28 +5,32 @@
 PluginEditor::PluginEditor(PluginProcessor& p)
   : AudioProcessorEditor(&p)
   , p(p)
-  , sizeFactor(p.scaleFactor) // reference to processor's scaleFactor
-  , oscilloscopePanel(p.oscilloscopeFifo, p.apvts)
-  , compositor("DisFlux", oscilloscopePanel, p.apvts, p.properties, sizeFactor)
+  , sizeFactor(p.scaleFactor)
+  , mainLayout({ 1.0 }, { 1.0 })
+  , compositor("Oscilloscope", mainLayout, p.apvts, p.properties, sizeFactor)
   , compositorAttached(true)
 {
   if (OS_IS_WINDOWS) {
-    setResizable(false, true);
+    setResizable(true, true);
   }
 
   if (OS_IS_DARWIN) {
-    setResizable(false, true);
+    setResizable(true, true);
   }
 
   if (OS_IS_LINUX) {
     openGLContext.setComponentPaintingEnabled(true);
     openGLContext.setContinuousRepainting(false);
     openGLContext.attachTo(*getTopLevelComponent());
+    setResizable(true, true);
   }
+  // Add Panel to Layout
+  mainLayout.addPanel<dmt::gui::panel::OscilloscopePanel<float>>(
+    0, 0, 1, 1, p.oscilloscopeFifo, p.apvts);
 
   setConstraints(baseWidth, baseHeight + headerHeight);
   addAndMakeVisible(compositor);
-  setResizable(false, true);
+  setResizable(true, true);
 
   const auto startWidth = baseWidth * sizeFactor;
   const auto startHeight = (baseHeight + headerHeight) * sizeFactor;
