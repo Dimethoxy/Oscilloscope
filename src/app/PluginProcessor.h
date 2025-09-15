@@ -51,6 +51,12 @@ public:
   dmt::configuration::Properties properties;
   dmt::version::Manager versionManager;
 
+  //==============================================================================
+  // Store scale factor for editor window
+  float scaleFactor = 1.0f;
+  float getScaleFactor() const { return scaleFactor; }
+  void setScaleFactor(float newScale) { scaleFactor = newScale; }
+
 private:
 #if PERFETTO
   std::unique_ptr<perfetto::TracingSession> tracingSession;

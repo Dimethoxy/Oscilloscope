@@ -14,8 +14,8 @@ class PluginEditor
   using OpenGLContext = juce::OpenGLContext;
 
   // Window size
-  const int baseWidth = 800;
-  const int baseHeight = 450;
+  const int baseWidth = 600;
+  const int baseHeight = 300;
 
   // Window header
   const int& headerHeight = dmt::Settings::Header::height;
