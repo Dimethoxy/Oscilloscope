@@ -2,10 +2,21 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Launch AudioPluginHost Windows",
+      "type": "cppvsdbg",
+      "request": "launch",
+      "program": "C:\\JUCE\\AudioPluginHost.exe",
+      "args": [],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
+      "environment": [],
+      "console": "internalConsole"
+    },
+    {
       "name": "Launch AudioPluginHost Linux",
       "type": "cppdbg",
       "request": "launch",
-      "program": "/data/development/juce/extras/AudioPluginHost/Builds/LinuxMakefile/build/AudioPluginHost",
+      "program": "/data/development/dimethoxy/juce/extras/AudioPluginHost/Builds/LinuxMakefile/build/AudioPluginHost",
       "args": [],
       "stopAtEntry": false,
       "cwd": "${workspaceFolder}",
@@ -36,12 +47,24 @@
       "name": "Launch FL Studio (Windows)",
       "type": "cppvsdbg",
       "request": "launch",
-      "program": "S:\\other-programms\\flstudio\\FL64.exe",
+      "program": "C:\\Program Files\\Image-Line\\FL Studio 2024\\FL64.exe",
       "args": [],
       "stopAtEntry": false,
       "cwd": "${workspaceFolder}",
       "environment": [],
       "console": "internalConsole"
+    },
+    {
+      "name": "Launch Bitwig Studio (Linux)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "/usr/bin/bitwig-studio",
+      "args": [],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
+      "environment": [],
+      "externalConsole": true,
+      "MIMode": "gdb"
     }
   ]
 }
