@@ -61,8 +61,8 @@ class OscilloscopePanel : public dmt::gui::panel::AbstractPanel
 
 public:
   //============================================================================
-  OscilloscopePanel(FifoAudioBuffer& fifoBuffer,
-                    juce::AudioProcessorValueTreeState& apvts)
+  OscilloscopePanel(juce::AudioProcessorValueTreeState& apvts,
+                    FifoAudioBuffer& fifoBuffer)
     : AbstractPanel("Oscilloscope", false)
     , oscilloscopeComponent(fifoBuffer, apvts)
     , zoomSlider(apvts,
