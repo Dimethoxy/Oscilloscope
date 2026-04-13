@@ -3,10 +3,14 @@
 #==============================================================================
 
 cmake_minimum_required(VERSION 3.30)
-project(Oscilloscope VERSION 1.0.0) # Oscilloscope-Version
+file(READ "${CMAKE_CURRENT_LIST_DIR}/VERSION.md" FILE_VERSION)
+string(STRIP "${FILE_VERSION}" FILE_VERSION)
+project(Oscilloscope VERSION ${FILE_VERSION})
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_SUPPRESS_DEVELOPER_WARNINGS TRUE) 
 set(EXT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external)
+
+# Set macOS deployment target for older macOS compatibility
 include(cmake/get_cpm.cmake)
 
 # Add external dependencies
@@ -15,12 +19,6 @@ CPMAddPackage(
     GITHUB_REPOSITORY juce-framework/JUCE
     GIT_TAG master
     SOURCE_DIR ${EXT_DIR}/juce
-)
-CPMAddPackage(
-    NAME DMT
-    GITHUB_REPOSITORY Dimethoxy/DMT
-    GIT_TAG main
-    SOURCE_DIR ${EXT_DIR}/dmt
 )
 CPMAddPackage(
     NAME CLAP_JUCE
@@ -52,3 +50,4 @@ endif()
 add_definitions(-D_SILENCE_CXX23_ALIGNED_STORAGE_DEPRECATION_WARNING)
 
 add_subdirectory(src)
+

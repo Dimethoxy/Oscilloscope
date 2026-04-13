@@ -3,11 +3,18 @@
 #==============================================================================
 
 cmake_minimum_required(VERSION 3.22)
-project(OscilloscopePlugin VERSION 1.0.0) # Oscilloscope-Version
+if(NOT DEFINED FILE_VERSION)
+    file(READ "${CMAKE_CURRENT_LIST_DIR}/../VERSION.md" FILE_VERSION)
+    string(STRIP "${FILE_VERSION}" FILE_VERSION)
+endif()
+project(OscilloscopePlugin VERSION ${FILE_VERSION})
 
 # If we are on MacOS, we need to build for arm64 and x86_64
 if (APPLE)
     set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64")
+    # Apparently macOS 12.0 is the minimum for reliable C++23 support
+    # But we yolo it and just hope for the best on older macOS versions
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.13")
 endif()
 
 # Option to disable update notification (default OFF)
@@ -15,19 +22,19 @@ option(DMT_DISABLE_UPDATE_NOTIFICATION "Disable update notification in the GUI" 
 
 # JUCE setup
 if(WIN32)
-    set(OSCILLOSCOPE_PLUGIN_FORMATS "VST3;CLAP;Standalone")
+    set(OS_PLUGIN_FORMATS "VST3;CLAP;Standalone")
 elseif(APPLE)
-    set(OSCILLOSCOPE_PLUGIN_FORMATS "VST3;CLAP;AU;Standalone")
+    set(OS_PLUGIN_FORMATS "VST3;CLAP;AU;Standalone")
 elseif(UNIX)
-    set(OSCILLOSCOPE_PLUGIN_FORMATS "VST3;CLAP;LV2;Standalone")
+    set(OS_PLUGIN_FORMATS "VST3;CLAP;LV2;Standalone")
 else()
-    set(OSCILLOSCOPE_PLUGIN_FORMATS "VST3;CLAP;Standalone")
+    set(OS_PLUGIN_FORMATS "VST3;CLAP;Standalone")
 endif()
 
 juce_add_plugin(${PROJECT_NAME}
     PRODUCT_NAME "Oscilloscope"
     COMPANY_NAME "Dimethoxy"
-    FORMATS ${OSCILLOSCOPE_PLUGIN_FORMATS}
+    FORMATS ${OS_PLUGIN_FORMATS}
     VST3_CATEGORIES "Fx" "Analyzer"                   
     IS_SYNTH FALSE
     NEEDS_MIDI_INPUT FALSE
@@ -38,7 +45,7 @@ juce_add_plugin(${PROJECT_NAME}
     PLUGIN_CODE DFLX
     LV2URI "https://dimethoxy.com/plugins/oscilloscope"      
     BUNDLE_ID com.dimethoxy.oscilloscope           
-    )
+)
 
 # Add the main source files
 target_sources(${PROJECT_NAME}
@@ -50,7 +57,8 @@ target_sources(${PROJECT_NAME}
 # Add the external libraries
 target_include_directories(${PROJECT_NAME}
     PUBLIC
-        ${CMAKE_SOURCE_DIR}/external/dmt
+    ${CMAKE_SOURCE_DIR}/src
+    ${CMAKE_SOURCE_DIR}/src/dmt
         ${CMAKE_SOURCE_DIR}/external/melatonin_perfetto
         ${CMAKE_SOURCE_DIR}/external/tomlplusplus
 )
@@ -58,32 +66,32 @@ target_include_directories(${PROJECT_NAME}
 # Add fonts and icons as binary data so they can be used in the app
 juce_add_binary_data(FontBinaryData
     SOURCES
-    ${CMAKE_SOURCE_DIR}/external/dmt/fonts/poppins/Poppins-Thin.ttf
-    ${CMAKE_SOURCE_DIR}/external/dmt/fonts/poppins/Poppins-ExtraLight.ttf
-    ${CMAKE_SOURCE_DIR}/external/dmt/fonts/poppins/Poppins-Light.ttf
-    ${CMAKE_SOURCE_DIR}/external/dmt/fonts/poppins/Poppins-Regular.ttf
-    ${CMAKE_SOURCE_DIR}/external/dmt/fonts/poppins/Poppins-Medium.ttf
-    ${CMAKE_SOURCE_DIR}/external/dmt/fonts/poppins/Poppins-SemiBold.ttf
-    ${CMAKE_SOURCE_DIR}/external/dmt/fonts/poppins/Poppins-Bold.ttf
-    ${CMAKE_SOURCE_DIR}/external/dmt/fonts/poppins/Poppins-ExtraBold.ttf
-    ${CMAKE_SOURCE_DIR}/external/dmt/fonts/poppins/Poppins-Black.ttf
-    ${CMAKE_SOURCE_DIR}/external/dmt/fonts/sedgwick_ave_display/SedgwickAveDisplay-Regular.ttf
-    ${CMAKE_SOURCE_DIR}/external/dmt/icons/speed.svg
-    ${CMAKE_SOURCE_DIR}/external/dmt/icons/back.svg
-    ${CMAKE_SOURCE_DIR}/external/dmt/icons/height.svg
-    ${CMAKE_SOURCE_DIR}/external/dmt/icons/thickness.svg
-    ${CMAKE_SOURCE_DIR}/external/dmt/icons/gear.svg
-    ${CMAKE_SOURCE_DIR}/external/dmt/icons/angles_up.svg
-    ${CMAKE_SOURCE_DIR}/external/dmt/icons/bypass.svg
-    ${CMAKE_SOURCE_DIR}/external/dmt/icons/download.svg
-    ${CMAKE_SOURCE_DIR}/external/dmt/icons/presets.svg
-    ${CMAKE_SOURCE_DIR}/external/dmt/icons/close.svg
-    ${CMAKE_SOURCE_DIR}/external/dmt/icons/reload.svg
-    ${CMAKE_SOURCE_DIR}/external/dmt/icons/save.svg
-    ${CMAKE_SOURCE_DIR}/external/dmt/icons/error.svg
-    ${CMAKE_SOURCE_DIR}/external/dmt/icons/warning.svg
-    ${CMAKE_SOURCE_DIR}/external/dmt/icons/success.svg
-    ${CMAKE_SOURCE_DIR}/external/dmt/icons/info.svg
+    ${CMAKE_SOURCE_DIR}/src/dmt/fonts/poppins/Poppins-Thin.ttf
+    ${CMAKE_SOURCE_DIR}/src/dmt/fonts/poppins/Poppins-ExtraLight.ttf
+    ${CMAKE_SOURCE_DIR}/src/dmt/fonts/poppins/Poppins-Light.ttf
+    ${CMAKE_SOURCE_DIR}/src/dmt/fonts/poppins/Poppins-Regular.ttf
+    ${CMAKE_SOURCE_DIR}/src/dmt/fonts/poppins/Poppins-Medium.ttf
+    ${CMAKE_SOURCE_DIR}/src/dmt/fonts/poppins/Poppins-SemiBold.ttf
+    ${CMAKE_SOURCE_DIR}/src/dmt/fonts/poppins/Poppins-Bold.ttf
+    ${CMAKE_SOURCE_DIR}/src/dmt/fonts/poppins/Poppins-ExtraBold.ttf
+    ${CMAKE_SOURCE_DIR}/src/dmt/fonts/poppins/Poppins-Black.ttf
+    ${CMAKE_SOURCE_DIR}/src/dmt/fonts/sedgwick_ave_display/SedgwickAveDisplay-Regular.ttf
+    ${CMAKE_SOURCE_DIR}/src/dmt/icons/speed.svg
+    ${CMAKE_SOURCE_DIR}/src/dmt/icons/back.svg
+    ${CMAKE_SOURCE_DIR}/src/dmt/icons/height.svg
+    ${CMAKE_SOURCE_DIR}/src/dmt/icons/thickness.svg
+    ${CMAKE_SOURCE_DIR}/src/dmt/icons/gear.svg
+    ${CMAKE_SOURCE_DIR}/src/dmt/icons/angles_up.svg
+    ${CMAKE_SOURCE_DIR}/src/dmt/icons/bypass.svg
+    ${CMAKE_SOURCE_DIR}/src/dmt/icons/download.svg
+    ${CMAKE_SOURCE_DIR}/src/dmt/icons/presets.svg
+    ${CMAKE_SOURCE_DIR}/src/dmt/icons/close.svg
+    ${CMAKE_SOURCE_DIR}/src/dmt/icons/reload.svg
+    ${CMAKE_SOURCE_DIR}/src/dmt/icons/save.svg
+    ${CMAKE_SOURCE_DIR}/src/dmt/icons/error.svg
+    ${CMAKE_SOURCE_DIR}/src/dmt/icons/warning.svg
+    ${CMAKE_SOURCE_DIR}/src/dmt/icons/success.svg
+    ${CMAKE_SOURCE_DIR}/src/dmt/icons/info.svg
 )
 
 # Link the libraries
@@ -141,7 +149,7 @@ message("JUCE header file generated!")
 if(MSVC)
     target_compile_definitions(${PROJECT_NAME}
         PRIVATE
-            _SILENCE_CXX23_ALIGEND_STORAGE_DEPRECATION_WARNING
+            _SILENCE_CXX23_ALIGNED_STORAGE_DEPRECATION_WARNING
     )
 endif()
 
