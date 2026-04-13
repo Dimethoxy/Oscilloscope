@@ -1,9 +1,17 @@
 #include "PluginProcessor.h"
 #include "ParameterLayout.h"
 #include "PluginEditor.h"
+
+dmt::configuration::SettingsOverwride HEADER_TITLE_BUTTON_WIDTH_OVERRIDE{
+  "Header.TitleButtonWidth",
+  160.0f,
+};
+
 //==============================================================================
 PluginProcessor::PluginProcessor()
-  : dmt::app::AbstractPluginProcessor(createParameterLayout)
+  : dmt::app::AbstractPluginProcessor(createParameterLayout,
+                                      { HEADER_TITLE_BUTTON_WIDTH_OVERRIDE },
+                                      {})
   , oscilloscopeBuffer(2, 4096)
 {
 }
