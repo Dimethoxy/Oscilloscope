@@ -64,11 +64,15 @@ public:
       valueTreeState.state.getPropertyAsValue(folderNameProperty, nullptr));
   }
 
+  ~FolderManager() override { valueTreeState.state.removeListener(this); }
+
 private:
   //==============================================================================
   juce::AudioProcessorValueTreeState& valueTreeState;
   juce::StringArray folderList;
   juce::Value currentFolder;
+
+  JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FolderManager)
 };
 } // namespace preset
 } // namespace gui
