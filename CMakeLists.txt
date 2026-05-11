@@ -10,7 +10,7 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_SUPPRESS_DEVELOPER_WARNINGS TRUE) 
 set(EXT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external)
 
-# Set macOS deployment target for older macOS compatibility
+# Set macOS deployment target for older macO6S compatibility
 include(cmake/get_cpm.cmake)
 
 # Add external dependencies

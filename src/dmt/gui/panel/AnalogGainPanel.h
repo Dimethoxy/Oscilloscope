@@ -70,17 +70,10 @@ public:
                   Unit::Type::Milliseconds,
                   LinearSliderType::Positive,
                   LinearSliderOrientation::Vertical)
-<<<<<<< HEAD
-    , skewSlider(apvts,
-                 juce::String("Skew"),
-                 juce::String("osc1GainEnvSkew"),
-                 Unit::Type::EnvelopeSkew,
-=======
     , bendSlider(apvts,
                  juce::String("Bend"),
                  juce::String("osc1GainEnvBend"),
                  Unit::Type::EnvelopeBend,
->>>>>>> a5e5c670fddd956080480f24e1397fa5872f9993
                  LinearSliderType::Positive,
                  LinearSliderOrientation::Vertical)
   {
@@ -89,11 +82,7 @@ public:
     addAndMakeVisible(attackSlider);
     addAndMakeVisible(holdSlider);
     addAndMakeVisible(decaySlider);
-<<<<<<< HEAD
-    addAndMakeVisible(skewSlider);
-=======
     addAndMakeVisible(bendSlider);
->>>>>>> a5e5c670fddd956080480f24e1397fa5872f9993
   }
 
   void extendResize() noexcept override
@@ -107,11 +96,7 @@ public:
     const int attackCol = 7;
     const int holdCol = 11;
     const int decayCol = 15;
-<<<<<<< HEAD
-    const int skewCol = 19;
-=======
     const int bendCol = 19;
->>>>>>> a5e5c670fddd956080480f24e1397fa5872f9993
 
     const auto attackSliderPrimaryPoint =
       this->getGridPoint(bounds, attackCol, primaryRow);
@@ -134,32 +119,19 @@ public:
     decaySlider.setBoundsByPoints(decaySliderPrimaryPoint,
                                   decaySliderSecondaryPoint);
 
-<<<<<<< HEAD
-    const auto skewSliderPrimaryPoint =
-      this->getGridPoint(bounds, skewCol, primaryRow);
-    const auto skewSliderSecondaryPoint =
-      this->getGridPoint(bounds, skewCol, secundaryRow);
-    skewSlider.setBoundsByPoints(skewSliderPrimaryPoint,
-                                 skewSliderSecondaryPoint);
-=======
     const auto bendSliderPrimaryPoint =
       this->getGridPoint(bounds, bendCol, primaryRow);
     const auto bendSliderSecondaryPoint =
       this->getGridPoint(bounds, bendCol, secundaryRow);
     bendSlider.setBoundsByPoints(bendSliderPrimaryPoint,
                                  bendSliderSecondaryPoint);
->>>>>>> a5e5c670fddd956080480f24e1397fa5872f9993
   }
 
 private:
   LinearSliderComponent attackSlider;
   LinearSliderComponent holdSlider;
   LinearSliderComponent decaySlider;
-<<<<<<< HEAD
-  LinearSliderComponent skewSlider;
-=======
   LinearSliderComponent bendSlider;
->>>>>>> a5e5c670fddd956080480f24e1397fa5872f9993
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AnalogGainPanel)
 };

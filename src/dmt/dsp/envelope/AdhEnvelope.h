@@ -50,14 +50,6 @@ class AhdEnvelope
 public:
   struct Parameters
   {
-<<<<<<< HEAD
-    float attack = 0.015f;
-    float hold = 0.08f;
-    float decay = 0.5f;
-
-    float attackSkew = 0;
-    float decaySkew = 10;
-=======
     bool enabled = true;
     float attack = 0.015f;
     float hold = 0.08f;
@@ -65,15 +57,11 @@ public:
     float attackBend = 0;
     float decayBend = 0;
     float depth = 1.0f;
->>>>>>> a5e5c670fddd956080480f24e1397fa5872f9993
   };
 
   enum class State
   {
-<<<<<<< HEAD
-=======
     Disabled,
->>>>>>> a5e5c670fddd956080480f24e1397fa5872f9993
     Attack,
     Hold,
     Decay,
@@ -82,8 +70,6 @@ public:
 
   constexpr AhdEnvelope() noexcept = default;
 
-<<<<<<< HEAD
-=======
   inline void setParameters(const juce::AudioProcessorValueTreeState& apvts,
                             juce::String prefix) noexcept
   {
@@ -98,7 +84,6 @@ public:
     params.depth = apvts.getRawParameterValue(base + "Depth")->load();
   }
 
->>>>>>> a5e5c670fddd956080480f24e1397fa5872f9993
   /**
    * @brief Set the envelope parameters.
    * @param _newParams The new parameters to set.
@@ -109,8 +94,6 @@ public:
   }
 
   /**
-<<<<<<< HEAD
-=======
    * @brief Get the Parameters object
    *
    * @return The current Parameters object
@@ -118,7 +101,6 @@ public:
   inline Parameters getParameters() const noexcept { return params; }
 
   /**
->>>>>>> a5e5c670fddd956080480f24e1397fa5872f9993
    * @brief Set the sample rate.
    * @param _newSampleRate The new sample rate to set.
    */
@@ -138,13 +120,6 @@ public:
    */
   [[nodiscard]] inline State getState() const noexcept
   {
-<<<<<<< HEAD
-    if (sampleIndex < getHoldStart()) [[likely]]
-      return State::Attack;
-    if (sampleIndex < getDecayStart()) [[likely]]
-      return State::Hold;
-    if (sampleIndex < getDecayEnd()) [[likely]]
-=======
     if (!params.enabled)
       return State::Disabled;
     if (sampleIndex < getHoldStart())
@@ -152,7 +127,6 @@ public:
     if (sampleIndex < getDecayStart())
       return State::Hold;
     if (sampleIndex < getDecayEnd())
->>>>>>> a5e5c670fddd956080480f24e1397fa5872f9993
       return State::Decay;
     return State::Idle;
   }
@@ -181,13 +155,6 @@ private:
     constexpr float zero = 0.0f;
 
     switch (_state) {
-<<<<<<< HEAD
-      case State::Attack: {
-        const float normalizedPosition =
-          static_cast<float>(sampleIndex) / sampleRate;
-        const float skew = getSkew(State::Attack);
-        return std::pow(normalizedPosition / params.attack, skew);
-=======
       case State::Disabled:
         return 0.0f;
       case State::Attack: {
@@ -195,7 +162,6 @@ private:
           static_cast<float>(sampleIndex) / sampleRate;
         const float phaseProgress = normalizedPosition / params.attack;
         return applyAtanBend(phaseProgress, params.attackBend);
->>>>>>> a5e5c670fddd956080480f24e1397fa5872f9993
       }
       case State::Hold:
         return one;
@@ -203,13 +169,8 @@ private:
         const float decayStart = static_cast<float>(getDecayStart());
         const float normalizedPosition =
           (static_cast<float>(sampleIndex) - decayStart) / sampleRate;
-<<<<<<< HEAD
-        const float skew = getSkew(State::Decay);
-        return one - std::pow(normalizedPosition / params.decay, skew);
-=======
         const float phaseProgress = normalizedPosition / params.decay;
         return one - applyAtanBend(phaseProgress, params.decayBend);
->>>>>>> a5e5c670fddd956080480f24e1397fa5872f9993
       }
       default:
         return zero;
@@ -217,22 +178,6 @@ private:
   }
 
   /**
-<<<<<<< HEAD
-   * @brief Get the skew value for the given state.
-   * @param _state The current state of the envelope.
-   * @return The skew value.
-   */
-  [[nodiscard]] inline float getSkew(const State _state) const noexcept
-  {
-    switch (_state) {
-      case State::Attack:
-        return dmt::math::linearToExponent(params.attackSkew);
-      case State::Decay:
-        return dmt::math::linearToExponent(-params.decaySkew);
-      default:
-        return 1.0f;
-    }
-=======
    * @brief Apply atan-based bend to normalized phase in range [0, 1].
    */
   [[nodiscard]] static inline float applyAtanBend(float normalizedPhase,
@@ -256,7 +201,6 @@ private:
 
     // Negative bend
     return 1.0f - (atan(k * (1.0f - x)) / normalizer);
->>>>>>> a5e5c670fddd956080480f24e1397fa5872f9993
   }
 
   /**

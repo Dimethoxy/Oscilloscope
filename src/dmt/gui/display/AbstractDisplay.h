@@ -67,11 +67,8 @@ class AbstractDisplay
   // General
   using Display = dmt::Settings::Display;
   const juce::Colour& backgroundColour = Display::backgroundColour;
-<<<<<<< HEAD
-=======
   const juce::Colour& displayForegroundColour =
     dmt::Settings::Panel::backgroundColour;
->>>>>>> a5e5c670fddd956080480f24e1397fa5872f9993
 
   // Layout
   const float& rawCornerSize = Display::cornerSize;

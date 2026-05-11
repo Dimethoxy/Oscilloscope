@@ -55,14 +55,6 @@ getOptions() noexcept
   options.filenameSuffix = ".config";
   options.storageFormat = juce::PropertiesFile::storeAsXML;
 
-<<<<<<< HEAD
-  if constexpr (OS_IS_WINDOWS) {
-    options.folderName = juce::String("Dimethoxy/") + name;
-  } else if constexpr (OS_IS_DARWIN) {
-    options.folderName = juce::String("Dimethoxy/") + name;
-  } else if constexpr (OS_IS_LINUX) {
-    options.folderName = juce::String(".config/Dimethoxy/") + name;
-=======
   if (OS_IS_WINDOWS) {
     options.folderName = juce::String("Dimethoxy/") + name;
   } else if (OS_IS_DARWIN) {
@@ -72,7 +64,6 @@ getOptions() noexcept
   } else {
     // What the hell is the OS?
     options.folderName = juce::String("Dimethoxy/") + name;
->>>>>>> a5e5c670fddd956080480f24e1397fa5872f9993
   }
 
   options.osxLibrarySubFolder = "Application Support";

@@ -31,10 +31,6 @@
 //==============================================================================
 
 #include "gui/panel/AbstractPanel.h"
-<<<<<<< HEAD
-#include "gui/panel/AnalogOscillatorPanel.h"
-=======
->>>>>>> a5e5c670fddd956080480f24e1397fa5872f9993
 #include "gui/panel/Carousel.h"
 #include "gui/panel/ModernOscillatorPanel.h"
 #include <JuceHeader.h>
@@ -52,10 +48,6 @@ public:
   OscillatorPanel()
     : Carousel()
   {
-<<<<<<< HEAD
-    panels.push_back(std::make_unique<AnalogOscillatorPanel>());
-=======
->>>>>>> a5e5c670fddd956080480f24e1397fa5872f9993
     panels.push_back(std::make_unique<ModernOscillatorPanel>());
     init();
   }

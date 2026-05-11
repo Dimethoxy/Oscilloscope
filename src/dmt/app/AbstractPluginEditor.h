@@ -1,14 +1,11 @@
 #pragma once
 
-<<<<<<< HEAD
-=======
 //==============================================================================
 // Preprocessor flags for renderer control
 #define DMT_SUPPRESS_GL_DEBUG_MESSAGES 0
 
 //==============================================================================
 
->>>>>>> a5e5c670fddd956080480f24e1397fa5872f9993
 #include "app/AbstractPluginProcessor.h"
 #include "gui/window/Compositor.h"
 #include <JuceHeader.h>
