@@ -67,6 +67,11 @@ class AbstractDisplay
   // General
   using Display = dmt::Settings::Display;
   const juce::Colour& backgroundColour = Display::backgroundColour;
+<<<<<<< HEAD
+=======
+  const juce::Colour& displayForegroundColour =
+    dmt::Settings::Panel::backgroundColour;
+>>>>>>> a5e5c670fddd956080480f24e1397fa5872f9993
 
   // Layout
   const float& rawCornerSize = Display::cornerSize;
@@ -121,10 +126,15 @@ public:
     // Precalculation
     const auto borderStrength = rawBorderStrength * size;
     const auto cornerSize = rawCornerSize * size;
+<<<<<<< HEAD
+=======
+    const auto padding = rawPadding * size;
+>>>>>>> a5e5c670fddd956080480f24e1397fa5872f9993
     const float outerCornerSize = cornerSize;
     const float innerCornerSize = std::clamp(
       outerCornerSize - (borderStrength * 0.5f), 0.0f, outerCornerSize);
 
+<<<<<<< HEAD
     // Draw background if border is disabled
     if (!drawBorder) {
       _g.setColour(backgroundColour);
@@ -141,6 +151,19 @@ public:
     // Draw display
     paintDisplay(_g, innerBounds);
 
+=======
+    // Draw background
+    _g.setColour(backgroundColour);
+    _g.fillRoundedRectangle(innerBounds.toFloat(), innerCornerSize);
+
+    // Draw display
+    paintDisplay(_g, innerBounds);
+
+    // Draw outer background to hide display overdraw
+    _g.setColour(displayForegroundColour);
+    _g.drawRect(getLocalBounds().toFloat(), padding);
+
+>>>>>>> a5e5c670fddd956080480f24e1397fa5872f9993
     // We need to draw the border again because drawing it once didn't cut it
     if (drawBorder) {
       _g.setColour(borderColour);

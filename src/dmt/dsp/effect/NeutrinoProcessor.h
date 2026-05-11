@@ -18,7 +18,8 @@
  * Your are not allowed to use this code in any closed-source project.
  *
  * Description:
- * Get the options for the properties file with predefined settings.
+ * Neutrino Processor class for processing audio buffers to generate a kick drum
+ * sound.
  *
  * Authors:
  * Lunix-420 (Primary Author)
@@ -29,64 +30,76 @@
 
 //==============================================================================
 
-#include "utility/Settings.h"
+#include "dsp/synth/NeutrinoSynthVoice.h"
+#include "dsp/synth/SynthSound.h"
 #include <JuceHeader.h>
-
-//==============================================================================
+#include <utility/Settings.h>
 
 namespace dmt {
-namespace configuration {
+namespace dsp {
+namespace effect {
 
 //==============================================================================
+
 /**
- * @brief Get the options for the properties file with predefined settings.
- *        Set's the application name, folder name, and other options.
+ * @brief Neutrino Processor
  *
- * @return A juce::PropertiesFile::Options object with default settings.
+ * This class processes audio buffers to generate a kick drum sound.
  */
-[[nodiscard]] static inline auto
-getOptions() noexcept
+class alignas(64) NeutrinoProcessor
 {
-  juce::PropertiesFile::Options options;
+  constexpr static float MIN_FREQUENCY = 20.0f;
+  constexpr static float MAX_FREQUENCY = 20000.0f;
 
-  constexpr auto& name = ProjectInfo::projectName;
-  options.applicationName = name;
+  using AudioBuffer = juce::AudioBuffer<float>;
+  using SynthVoice = dmt::dsp::synth::NeutrinoSynthVoice;
+  using SynthSound = dmt::dsp::synth::SynthSound;
 
-  options.filenameSuffix = ".config";
-  options.storageFormat = juce::PropertiesFile::storeAsXML;
-
-<<<<<<< HEAD
-  if constexpr (OS_IS_WINDOWS) {
-    options.folderName = juce::String("Dimethoxy/") + name;
-  } else if constexpr (OS_IS_DARWIN) {
-    options.folderName = juce::String("Dimethoxy/") + name;
-  } else if constexpr (OS_IS_LINUX) {
-    options.folderName = juce::String(".config/Dimethoxy/") + name;
-=======
-  if (OS_IS_WINDOWS) {
-    options.folderName = juce::String("Dimethoxy/") + name;
-  } else if (OS_IS_DARWIN) {
-    options.folderName = juce::String("Dimethoxy/") + name;
-  } else if (OS_IS_LINUX) {
-    options.folderName = juce::String(".config/Dimethoxy/") + name;
-  } else {
-    // What the hell is the OS?
-    options.folderName = juce::String("Dimethoxy/") + name;
->>>>>>> a5e5c670fddd956080480f24e1397fa5872f9993
+public:
+  NeutrinoProcessor(juce::AudioProcessorValueTreeState& _apvts)
+    : apvts(_apvts)
+  {
+    synth.addSound(new SynthSound());
+    synth.addVoice(new SynthVoice(apvts));
   }
 
-  options.osxLibrarySubFolder = "Application Support";
-  options.commonToAllUsers = false;
-  options.ignoreCaseOfKeyNames = true;
-  options.doNotSave = false;
-  options.millisecondsBeforeSaving = -1;
+  //==============================================================================
+  /**
+   * @brief Prepares the processor with the given sample rate.
+   *
+   * @param _newSampleRate The sample rate.
+   */
+  inline void prepare(const double _newSampleRate,
+                      const int _samplesPerBlock) noexcept
+  {
+    sampleRate = static_cast<float>(_newSampleRate);
 
-  return options;
-}
+    synth.setCurrentPlaybackSampleRate(sampleRate);
+
+    for (int i = 0; i < synth.getNumVoices(); i++) {
+      auto voice = dynamic_cast<SynthVoice*>(synth.getVoice(i));
+      voice->prepareToPlay(sampleRate, _samplesPerBlock, 2);
+    }
+  }
+
+  inline void processBlock(AudioBuffer& _buffer,
+                           juce::MidiBuffer& _midiMessages) noexcept
+  {
+    if (sampleRate <= 0.0f) {
+      return;
+    }
+
+    synth.renderNextBlock(_buffer, _midiMessages, 0, _buffer.getNumSamples());
+  }
+
+private:
+  //==============================================================================
+  juce::Synthesiser synth;
+  juce::AudioProcessorValueTreeState& apvts;
+  float sampleRate = -1.0f;
+};
 
 //==============================================================================
-
-} // namespace configuration
+} // namespace effect
+} // namespace dsp
 } // namespace dmt
-
-//==============================================================================

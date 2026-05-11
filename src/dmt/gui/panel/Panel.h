@@ -31,7 +31,10 @@
 
 #include "./AbstractPanel.h"
 #include "./AnalogGainPanel.h"
+<<<<<<< HEAD
 #include "./AnalogOscillatorPanel.h"
+=======
+>>>>>>> a5e5c670fddd956080480f24e1397fa5872f9993
 #include "./AnalogPitchPanel.h"
 #include "./Carousel.h"
 #include "./DisfluxPanel.h"

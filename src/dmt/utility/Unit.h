@@ -83,7 +83,11 @@ struct alignas(8) Unit
     Bitdepth,
     VoiceDensity,
     VoiceDistribution,
+<<<<<<< HEAD
     EnvelopeSkew,
+=======
+    EnvelopeBend,
+>>>>>>> a5e5c670fddd956080480f24e1397fa5872f9993
     Milliseconds,
     OscilloscopeZoom,
     OscilloscopeThickness,
@@ -168,6 +172,12 @@ struct alignas(8) Unit
         return String(static_cast<int>(static_cast<float>(_value * 100.0f))) +
                String("%");
         break;
+<<<<<<< HEAD
+=======
+      case Type::EnvelopeBend:
+        return String(_value, 1) + String("x");
+        break;
+>>>>>>> a5e5c670fddd956080480f24e1397fa5872f9993
 
         // Heretik
       case Type::HeretikPreGain:
