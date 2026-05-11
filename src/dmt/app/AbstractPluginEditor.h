@@ -46,13 +46,6 @@ public:
     // Now that layout is fully configured, attach the compositor
     addAndMakeVisible(compositor);
 
-<<<<<<< HEAD
-    if (OS_IS_WINDOWS) {
-      setResizable(false, true);
-    }
-
-    if (OS_IS_DARWIN) {
-=======
 #if OS_IS_DARWIN || OS_IS_LINUX
     // Determine if hardware acceleration should be used
     bool shouldUseOpenGL = dmt::Settings::useOpenGL;
@@ -70,48 +63,10 @@ public:
       } else {
         DBG("[AbstractPluginEditor] Using macOS software renderer");
       }
->>>>>>> a5e5c670fddd956080480f24e1397fa5872f9993
       setResizable(false, true);
     }
 
     if (OS_IS_LINUX) {
-<<<<<<< HEAD
-      openGLContext.setComponentPaintingEnabled(true);
-      openGLContext.setContinuousRepainting(false);
-      openGLContext.attachTo(*getTopLevelComponent());
-      std::thread([this]() {
-        for (int i = 0; i < 200; ++i) {
-          if (openGLContext.isAttached() &&
-              openGLContext.getRawContext() != nullptr)
-            break;
-          std::this_thread::sleep_for(std::chrono::milliseconds(25));
-        }
-
-        if (!openGLContext.isAttached() ||
-            openGLContext.getRawContext() == nullptr)
-          return;
-
-        openGLContext.executeOnGLThread(
-          [](juce::OpenGLContext&) {
-            if (juce::gl::glDebugMessageControl) {
-              juce::gl::glDebugMessageControl(
-                juce::gl::GL_DEBUG_SOURCE_API,
-                juce::gl::GL_DEBUG_TYPE_OTHER,
-                juce::gl::GL_DEBUG_SEVERITY_NOTIFICATION,
-                0,
-                nullptr,
-                juce::gl::GL_FALSE);
-            }
-
-            if (juce::gl::glDebugMessageCallback)
-              juce::gl::glDebugMessageCallback(juceFilteredGLDebugCallback,
-                                               nullptr);
-          },
-          true);
-      }).detach();
-    }
-
-=======
       // Linux: Use OpenGL for hardware acceleration if enabled
       if (shouldUseOpenGL) {
         DBG("[AbstractPluginEditor] Using Linux OpenGL renderer");
@@ -126,7 +81,6 @@ public:
 
 #endif
 
->>>>>>> a5e5c670fddd956080480f24e1397fa5872f9993
     setConstraints(baseWidth, baseHeight + headerHeight);
     setResizable(false, true);
 
@@ -200,14 +154,11 @@ public:
   }
 
   //==============================================================================
-<<<<<<< HEAD
-=======
   // Handle peer creation for Windows Direct2D setup
 
   void parentHierarchyChanged() override {}
 
   //==============================================================================
->>>>>>> a5e5c670fddd956080480f24e1397fa5872f9993
   // JUCE overrides
 
   void setConstraints(int width, int height)
@@ -243,11 +194,7 @@ public:
   {
     stopTimer();
     attachCompositorAfterResize();
-<<<<<<< HEAD
-    repaint(); // TODO: Redundanr call, maybe remove this?
-=======
     repaint(); // TODO: Redundant call, maybe remove this?
->>>>>>> a5e5c670fddd956080480f24e1397fa5872f9993
   }
 
   // Detach compositor to improve resize performance
@@ -311,8 +258,6 @@ public:
   }
 
   //==============================================================================
-<<<<<<< HEAD
-=======
   // OpenGL initialization
 
   void setupOpenGLContext()
@@ -356,7 +301,6 @@ public:
   }
 
   //==============================================================================
->>>>>>> a5e5c670fddd956080480f24e1397fa5872f9993
   // OpenGL debug overwrite
 
   static void KHRONOS_APIENTRY

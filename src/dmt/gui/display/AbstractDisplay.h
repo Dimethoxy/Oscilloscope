@@ -128,32 +128,11 @@ public:
     // Precalculation
     const auto borderStrength = rawBorderStrength * size;
     const auto cornerSize = rawCornerSize * size;
-<<<<<<< HEAD
-=======
     const auto padding = rawPadding * size;
->>>>>>> a5e5c670fddd956080480f24e1397fa5872f9993
     const float outerCornerSize = cornerSize;
     const float innerCornerSize = std::clamp(
       outerCornerSize - (borderStrength * 0.5f), 0.0f, outerCornerSize);
 
-<<<<<<< HEAD
-    // Draw background if border is disabled
-    if (!drawBorder) {
-      _g.setColour(backgroundColour);
-      _g.fillRoundedRectangle(outerBounds.toFloat(), outerCornerSize);
-    }
-
-    // Draw background and border if border is enabled
-    if (drawBorder) {
-      _g.setColour(borderColour);
-      _g.fillRoundedRectangle(outerBounds.toFloat(), outerCornerSize);
-      _g.setColour(backgroundColour);
-      _g.fillRoundedRectangle(innerBounds.toFloat(), innerCornerSize);
-    }
-    // Draw display
-    paintDisplay(_g, innerBounds);
-
-=======
     // Draw background
     _g.setColour(backgroundColour);
     _g.fillRoundedRectangle(innerBounds.toFloat(), innerCornerSize);
@@ -165,7 +144,6 @@ public:
     _g.setColour(displayForegroundColour);
     _g.drawRect(getLocalBounds().toFloat(), padding);
 
->>>>>>> a5e5c670fddd956080480f24e1397fa5872f9993
     // We need to draw the border again because drawing it once didn't cut it
     if (drawBorder) {
       _g.setColour(borderColour);
