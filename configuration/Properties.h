@@ -58,6 +58,12 @@ class Properties
 public:
   //============================================================================
   /**
+   * @brief Construct a new Properties object
+   */
+  Properties() = default;
+
+  //============================================================================
+  /**
    * @brief Initialize the properties with options and settings.
    */
   void initialize(SettingsOverrides _overwrites = {},
@@ -203,6 +209,8 @@ protected:
 private:
   juce::ApplicationProperties file;
   juce::PropertySet fallbackPropertySet;
+
+  JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Properties)
 };
 } // namespace configuration
 } // namespace dmt
