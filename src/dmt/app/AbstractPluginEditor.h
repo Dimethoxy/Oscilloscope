@@ -311,12 +311,15 @@ public:
         const auto maxWidth = static_cast<int>(maxHeight * maxAspectRatio);
         constrainer->setSizeLimits(minWidth, minHeight, maxWidth, maxHeight);
       }
+      // Keep width the same, only adjust height by header height
+      int heightAdjustment = static_cast<int>(
+        (isHeaderVisible ? headerHeight : -headerHeight) * sizeFactor);
+      setSize(getWidth(), getHeight() + heightAdjustment);
     } else {
       // In fixed mode, enforce fixed aspect ratio
       setConstraints(baseWidth, adjustedHeight);
+      setSize(baseWidth * sizeFactor, adjustedHeight * sizeFactor);
     }
-
-    setSize(baseWidth * sizeFactor, adjustedHeight * sizeFactor);
   }
 
   dmt::gui::window::Layout& getMainLayout() { return mainLayout; }
