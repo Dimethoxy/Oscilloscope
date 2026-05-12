@@ -40,6 +40,8 @@ public:
     float maxSizeMultiplier = 2.0f;
     float minAspectRatio = 0.5f;
     float maxAspectRatio = 2.0f;
+    int dynamicStartWidth = -1;
+    int dynamicStartHeight = -1;
   };
 
   // Custom constrainer that enforces aspect ratio bounds (min/max aspect
@@ -178,8 +180,29 @@ public:
     }
     setResizable(false, true);
 
-    const auto startWidth = baseWidth * sizeFactor;
-    const auto startHeight = (baseHeight + headerHeight) * sizeFactor;
+    // Resolve initial window size using priority order
+    int initialWidth = baseWidth;
+    int initialHeight = baseHeight + headerHeight;
+
+    // Priority 1: Check for saved window state
+    int savedWidth = p.getSavedWindowWidth();
+    int savedHeight = p.getSavedWindowHeight();
+    if (savedWidth > 0 && savedHeight > 0) {
+      initialWidth = savedWidth;
+      initialHeight = savedHeight;
+      isHeaderHidden = p.getSavedHeaderHiddenState();
+    }
+    // Priority 2: Use dynamic start dimensions if in dynamic mode
+    else if (windowMode == WindowMode::Dynamic &&
+             _windowConfig.dynamicStartWidth > 0 &&
+             _windowConfig.dynamicStartHeight > 0) {
+      initialWidth = _windowConfig.dynamicStartWidth;
+      initialHeight = _windowConfig.dynamicStartHeight;
+    }
+    // Priority 3: Use base dimensions (default, already set above)
+
+    const auto startWidth = initialWidth * sizeFactor;
+    const auto startHeight = initialHeight * sizeFactor;
     setSize(startWidth, startHeight);
 
     // Set the callback for header visibility changes
@@ -297,6 +320,7 @@ public:
 
   void handleHeaderVisibilityChange(bool isHeaderVisible)
   {
+    isHeaderHidden = !isHeaderVisible;
     const int adjustedHeight =
       isHeaderVisible ? baseHeight + headerHeight : baseHeight;
 
@@ -320,6 +344,9 @@ public:
       setConstraints(baseWidth, adjustedHeight);
       setSize(baseWidth * sizeFactor, adjustedHeight * sizeFactor);
     }
+
+    // Save the header visibility state
+    p.saveWindowState(getWidth(), getHeight(), isHeaderHidden);
   }
 
   dmt::gui::window::Layout& getMainLayout() { return mainLayout; }
@@ -383,6 +410,9 @@ public:
       compositor.setBounds(getLocalBounds());
       compositorAttached = true;
       repaint();
+
+      // Save the current window state after size correction
+      p.saveWindowState(getWidth(), getHeight(), isHeaderHidden);
     }
   }
 
@@ -479,6 +509,7 @@ protected:
   float maxSizeMultiplier = 2.0f;
   float minAspectRatio = 0.5f;
   float maxAspectRatio = 2.0f;
+  bool isHeaderHidden = false;
   int lastWidth = baseWidth;
   int lastHeight = baseHeight;
   double ratio = baseWidth / baseHeight;

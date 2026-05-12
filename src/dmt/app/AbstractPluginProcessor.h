@@ -159,6 +159,31 @@ public:
   void setSizeFactor(float newSize) { sizeFactor = newSize; }
 
   //==============================================================================
+  // Window State Management
+
+  void saveWindowState(int width, int height, bool isHeaderHidden)
+  {
+    apvts.state.setProperty("windowWidth", width, nullptr);
+    apvts.state.setProperty("windowHeight", height, nullptr);
+    apvts.state.setProperty("isHeaderHidden", isHeaderHidden, nullptr);
+  }
+
+  int getSavedWindowWidth() const
+  {
+    return static_cast<int>(apvts.state.getProperty("windowWidth", -1));
+  }
+
+  int getSavedWindowHeight() const
+  {
+    return static_cast<int>(apvts.state.getProperty("windowHeight", -1));
+  }
+
+  bool getSavedHeaderHiddenState() const
+  {
+    return static_cast<bool>(apvts.state.getProperty("isHeaderHidden", false));
+  }
+
+  //==============================================================================
 private:
 #if PERFETTO
   std::unique_ptr<perfetto::TracingSession> tracingSession;
