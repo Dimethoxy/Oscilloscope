@@ -10,7 +10,7 @@ PluginEditor::PluginEditor(PluginProcessor& p)
       325,
       [&p](dmt::gui::window::Layout& layout) {
         layout.addPanel<dmt::gui::panel::OscilloscopePanel<float>>(
-          0, 0, 1, 1, p.apvts, p.oscilloscopeBuffer);
+          0, 0, 1, 1, p.oscilloscopeBuffer, p.apvts);
       })
 {
 }

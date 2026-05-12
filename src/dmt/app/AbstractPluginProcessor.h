@@ -12,7 +12,9 @@ public:
   //==============================================================================
   AbstractPluginProcessor(
     std::function<juce::AudioProcessorValueTreeState::ParameterLayout()>
-      createParameterLayout)
+      createParameterLayout,
+    dmt::configuration::SettingsOverrides overrides = {},
+    dmt::configuration::SettingsReplacements replacements = {})
     : AudioProcessor(
         BusesProperties()
 #if !JucePlugin_IsMidiEffect
@@ -27,7 +29,7 @@ public:
 #if PERFETTO
     MelatoninPerfetto::get().beginSession();
 #endif
-    properties.initialize();
+    properties.initialize(overrides, replacements);
   }
 
   //==============================================================================
